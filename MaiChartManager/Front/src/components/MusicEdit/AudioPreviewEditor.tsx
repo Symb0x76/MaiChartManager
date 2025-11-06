@@ -9,6 +9,7 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline'
 import api, { getUrl } from "@/client/api";
 import { AudioPreviewTime } from "@/client/apiGen";
 import { useMagicKeys } from "@vueuse/core";
+import { t } from "@/locales";
 
 export default defineComponent({
   props: {
@@ -32,7 +33,7 @@ export default defineComponent({
         const req = await api.GetAudioPreviewTime(selectMusicId.value, selectedADir.value)
         savedRegion = req.data
         if (savedRegion.startTime! >= savedRegion.endTime!) {
-          throw new Error("音频预览时间错误")
+          throw new Error(t('music.edit.audioPreviewError'))
         }
       } catch (e) {
         savedRegion = {startTime: -1, endTime: -1}
@@ -71,13 +72,13 @@ export default defineComponent({
         const time = ws.value?.getDuration()! * e;
         if (ctrl.value) {
           if (time >= region.value!.end) {
-            message.warning("开始时间不能大于结束时间")
+            message.warning(t('music.edit.audioPreviewStartGtEnd'))
             return
           }
           region.value!.setOptions({start: time})
         } else if (shift.value) {
           if (time <= region.value!.start) {
-            message.warning("结束时间不能小于开始时间")
+            message.warning(t('music.edit.audioPreviewEndLtStart'))
             return
           }
           region.value!.setOptions({end: time, start: region.value!.start})
@@ -101,7 +102,7 @@ export default defineComponent({
         await api.SetAudioPreview(selectMusicId.value, selectedADir.value, {startTime: region.value!.start, endTime: region.value!.end})
         props.closeModel()
       } catch (e) {
-        globalCapture(e, "保存音频预览失败")
+        globalCapture(e, t('music.edit.audioPreviewSaveFailed'))
       } finally {
         load.value = false
       }
@@ -111,7 +112,7 @@ export default defineComponent({
 
     return () => <NSpin show={dataLoad.value}>
       <NFlex vertical size="large">
-        Ctrl / Shift + 点击可直接将点击位置设为开始 / 结束时间
+        {t('music.edit.audioPreviewCtrlShiftClick')}
         <div ref={waveSurferContainer}/>
         <NFlex justify="center">
           <NButton secondary onClick={() => {
@@ -128,15 +129,15 @@ export default defineComponent({
             region.value?.play()
           }}>
             <span class="i-mdi-play text-lg m-r-2"/>
-            选区
+            {t('music.edit.audioPreviewSelectRegion')}
           </NButton>
         </NFlex>
         <NFlex justify="end">
           <NButton type="error" secondary onClick={props.closeModel as any} disabled={load.value}>
-            放弃
+            {t('common.dismiss')}
           </NButton>
           <NButton secondary onClick={save} loading={load.value}>
-            保存
+            {t('common.save')}
           </NButton>
         </NFlex>
       </NFlex>

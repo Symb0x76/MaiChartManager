@@ -16,6 +16,7 @@ export interface AppVersionResult {
   license?: LicenseStatus;
   hardwareAcceleration?: HardwareAccelerationStatus;
   h264Encoder?: string | null;
+  locale?: string | null;
 }
 
 export enum AssetType {
@@ -1231,6 +1232,37 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       this.request<void, any>({
         path: `/MaiChartManagerServlet/GetLocalAssetApi/${fileName}`,
         method: "GET",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Locale
+     * @name GetCurrentLocale
+     * @request GET:/MaiChartManagerServlet/GetCurrentLocaleApi
+     */
+    GetCurrentLocale: (params: RequestParams = {}) =>
+      this.request<string, any>({
+        path: `/MaiChartManagerServlet/GetCurrentLocaleApi`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Locale
+     * @name SetLocale
+     * @request POST:/MaiChartManagerServlet/SetLocaleApi
+     */
+    SetLocale: (data: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/SetLocaleApi`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
         ...params,
       }),
 

@@ -1,0 +1,280 @@
+﻿<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <!-- Music Controller -->
+    <data name="MusicIdExists" xml:space="preserve">
+    <value>当前资源目录里已经存在这个 ID 了</value>
+  </data>
+    <data name="UnsupportedImageFormat" xml:space="preserve">
+    <value>不支持的图片格式</value>
+  </data>
+    <!-- Genre Controller -->
+    <data name="GenreIdExists" xml:space="preserve">
+    <value>相同的资源目录里已经存在一个 ID 相同的流派了</value>
+  </data>
+    <data name="GenreIdExistsHigherPriority" xml:space="preserve">
+    <value>一个优先级更高的资源目录里已经存在一个 ID 相同的流派了，这样的话，新创建的流派不会被识别
+如果你确实想新建的话，请先删除以下目录中已存在的流派</value>
+  </data>
+    <!-- Version Controller -->
+    <data name="VersionIdExists" xml:space="preserve">
+    <value>相同的资源目录里已经存在一个 ID 相同的版本了</value>
+  </data>
+    <data name="VersionIdExistsHigherPriority" xml:space="preserve">
+    <value>一个优先级更高的资源目录里已经存在一个 ID 相同的版本了，这样的话，新创建的版本不会被识别
+如果你确实想新建的话，请先删除以下目录中已存在的版本</value>
+  </data>
+    <!-- Audio/Video Convert Controller -->
+    <data name="FileNotSelected" xml:space="preserve">
+    <value>未选择文件</value>
+  </data>
+    <data name="BrowserNotInitialized" xml:space="preserve">
+    <value>浏览器窗口未初始化</value>
+  </data>
+    <data name="ConvertSuccess" xml:space="preserve">
+    <value>转换完成！</value>
+  </data>
+    <data name="ConvertFailed" xml:space="preserve">
+    <value>转换失败: {0}</value>
+  </data>
+    <data name="AcbNotFound" xml:space="preserve">
+    <value>找不到配对的 ACB 文件: {0}</value>
+  </data>
+    <data name="AwbNotFound" xml:space="preserve">
+    <value>找不到配对的 AWB 文件: {0}</value>
+  </data>
+    <!-- AssetDir Controller -->
+    <data name="SelectAssetDirectory" xml:space="preserve">
+    <value>请选择资源目录（OPT）的文件夹</value>
+  </data>
+    <!-- AppMain -->
+    <data name="ConfigCorrupted" xml:space="preserve">
+    <value>看起来配置文件损坏了…已经重置配置文件</value>
+  </data>
+    <data name="ConfigCorruptedTitle" xml:space="preserve">
+    <value>不太对劲</value>
+  </data>
+    <data name="WebView2NotInstalled" xml:space="preserve">
+    <value>WebView2 运行时未安装，在启动之后可能会白屏…
+
+如果你觉得你已经安装了 WebView2 运行时，请尝试重启电脑。
+
+要尝试安装一下 WebView2 吗？</value>
+  </data>
+    <data name="WebView2NotInstalledTitle" xml:space="preserve">
+    <value>WebView2 未安装</value>
+  </data>
+    <!-- Launcher -->
+    <data name="LauncherSelectGameDir" xml:space="preserve">
+    <value>选择游戏目录</value>
+  </data>
+    <data name="LauncherStart" xml:space="preserve">
+    <value>启动</value>
+  </data>
+    <data name="LauncherStop" xml:space="preserve">
+    <value>停止</value>
+  </data>
+    <data name="LauncherExit" xml:space="preserve">
+    <value>退出</value>
+  </data>
+    <data name="LauncherGameDir" xml:space="preserve">
+    <value>游戏目录</value>
+  </data>
+    <data name="LauncherOpenToLan" xml:space="preserve">
+    <value>开放到局域网</value>
+  </data>
+    <data name="LauncherStartup" xml:space="preserve">
+    <value>开机自动运行</value>
+  </data>
+    <data name="LauncherNeedLogin" xml:space="preserve">
+    <value>需要登录</value>
+  </data>
+    <data name="PathNotExist" xml:space="preserve">
+    <value>选择的路径不存在！</value>
+  </data>
+    <data name="PathContainsSpecialChars" xml:space="preserve">
+    <value>警告：路径中包含特殊字符或中文，可能会导致 MelonLoader 之类的工具出现兼容性问题，请将目录移动至英文路径！</value>
+  </data>
+    <data name="PathContainsSpecialCharsTitle" xml:space="preserve">
+    <value>警告</value>
+  </data>
+    <data name="PathNotGameDir" xml:space="preserve">
+    <value>选择的路径中看起来不包含游戏文件，请选择 Sinmai.exe 所在的文件夹</value>
+  </data>
+    <data name="OfflineActivationPrompt" xml:space="preserve">
+    <value>请输入激活码</value>
+  </data>
+    <data name="OfflineActivationTitle" xml:space="preserve">
+    <value>离线激活</value>
+  </data>
+    <data name="ActivationCodeInvalid" xml:space="preserve">
+    <value>激活码无效</value>
+  </data>
+    <data name="ActivationSuccess" xml:space="preserve">
+    <value>赞助版功能已激活，谢谢你</value>
+  </data>
+    <!-- StaticSettings -->
+    <data name="GameDirNotSpecified" xml:space="preserve">
+    <value>未指定游戏目录</value>
+  </data>
+    <data name="InitDataDirError" xml:space="preserve">
+    <value>初始化数据目录时出错</value>
+  </data>
+    <data name="LoadMusicDataFailed" xml:space="preserve">
+    <value>加载乐曲数据 {0} 失败: {1}</value>
+  </data>
+    <data name="LoadGenreDataFailed" xml:space="preserve">
+    <value>加载分类数据 {0} 失败: {1}</value>
+  </data>
+    <data name="LoadVersionDataFailed" xml:space="preserve">
+    <value>加载版本数据 {0} 失败: {1}</value>
+  </data>
+    <data name="GameVersionNotFound" xml:space="preserve">
+    <value>无法获取游戏版本号，解析数据失败</value>
+  </data>
+    <data name="GameVersionNotFoundTitle" xml:space="preserve">
+    <value>提示</value>
+  </data>
+    <data name="GameVersionError" xml:space="preserve">
+    <value>无法获取游戏版本号，可能是因为 A000\DataConfig.xml 找不到或者有错误</value>
+  </data>
+    <!-- ServerManager -->
+    <data name="UnknownError" xml:space="preserve">
+    <value>未知错误</value>
+  </data>
+
+    <!-- ImportChartController -->
+    <data name="ChartFixedMinorErrors" xml:space="preserve">
+    <value>尝试修正了一些谱面难度 {0} 中的小错误</value>
+  </data>
+    <data name="ChartMaiLibParseError" xml:space="preserve">
+    <value>MaiLib 解析谱面难度 {0} 时报错：
+{1}
+这往往是谱面中的语句不够规范导致的，您可尝试根据报错对谱面进行修复。</value>
+  </data>
+    <data name="ChartSimaiSharpFallback" xml:space="preserve">
+    <value>就算修正了一些已知错误，MaiLib 还是无法解析谱面难度 {0}，我们尝试通过 AstroDX 的 SimaiSharp 解析。
+如果转换结果发现有什么问题的话，可以试试在 AstroDX 中有没有同样的问题并告诉我们（不试也没关系）</value>
+  </data>
+    <data name="ChartParseFailed" xml:space="preserve">
+    <value>试了各种办法都无法解析谱面难度 {0}，请检查谱面是否有问题</value>
+  </data>
+    <data name="MusicNoTitle" xml:space="preserve">
+    <value>乐曲没有标题</value>
+  </data>
+    <data name="ImportingDifficulties" xml:space="preserve">
+    <value>将导入以下难度：</value>
+  </data>
+    <data name="DifficultyImportedAsMaster" xml:space="preserve">
+    <value>有一个难度为 {0} 的谱面，将导入为紫谱</value>
+  </data>
+    <data name="DifficultyImportedAsReMaster" xml:space="preserve">
+    <value>有一个难度为 {0} 的谱面，将导入为白谱</value>
+  </data>
+    <data name="DifficultyImportedAsBasic" xml:space="preserve">
+    <value>有一个难度为 {0} 的谱面，将导入为绿谱</value>
+  </data>
+    <data name="DifficultyIgnored" xml:space="preserve">
+    <value>有一个难度为 {0} 的谱面将被忽略</value>
+  </data>
+    <data name="MusicNoCharts" xml:space="preserve">
+    <value>乐曲没有谱面</value>
+  </data>
+    <data name="ChartInvalidMeasure" xml:space="preserve">
+    <value>谱面难度 {0} 存在 {1} 分音符，这个数值不能大于 384。绝大多数这样的情况都是可以修改谱面解决的</value>
+  </data>
+    <data name="ChartDifficultyParseFailed" xml:space="preserve">
+    <value>谱面难度 {0} 解析失败</value>
+  </data>
+    <data name="ChartParseFailedGlobal" xml:space="preserve">
+    <value>谱面解析失败（大）</value>
+  </data>
+    <data name="ChartShiftError" xml:space="preserve">
+    <value>平移谱面时遇到问题，可以试试在导入的高级选项中开启避免平移谱面</value>
+  </data>
+    <data name="ChartNotesMissing" xml:space="preserve">
+    <value>看起来有音符被吃掉了！不出意外的话是遇到了 Bug，如果你能提供谱面文件的话我们会很感谢！</value>
+  </data>
+    <data name="ChartBpmZero" xml:space="preserve">
+    <value>BPM 等于 0</value>
+  </data>
+    <data name="ChartParseGenericError" xml:space="preserve">
+    <value>解析谱面失败</value>
+  </data>
+    <data name="ChartShiftByOffsetError" xml:space="preserve">
+    <value>谱面偏移 ShiftByOffset 遇到问题</value>
+  </data>
+    <!-- Chart Difficulty Names -->
+    <data name="DifficultyBasic" xml:space="preserve">
+    <value>绿</value>
+  </data>
+    <data name="DifficultyAdvanced" xml:space="preserve">
+    <value>黄</value>
+  </data>
+    <data name="DifficultyExpert" xml:space="preserve">
+    <value>红</value>
+  </data>
+    <data name="DifficultyMaster" xml:space="preserve">
+    <value>紫</value>
+  </data>
+    <data name="DifficultyReMaster" xml:space="preserve">
+    <value>白</value>
+  </data>
+
+    <!-- MusicTransferController -->
+    <data name="SelectTargetLocation" xml:space="preserve">
+    <value>请选择目标位置</value>
+  </data>
+    <data name="Exporting" xml:space="preserve">
+    <value>正在导出…</value>
+  </data>
+    <data name="ExportingMultipleMusic" xml:space="preserve">
+    <value>正在导出 {0} 首乐曲…</value>
+  </data>
+    <data name="Cancelling" xml:space="preserve">
+    <value>正在取消…</value>
+  </data>
+
+    <!-- CueConvertController -->
+    <data name="AcbRequiresAwb" xml:space="preserve">
+    <value>acb 文件必须搭配 awb 文件</value>
+  </data>
+    <data name="AudioFileNotFound" xml:space="preserve">
+    <value>音频文件不存在</value>
+  </data>
+
+    <!-- AudioConvertToolController -->
+    <data name="SelectAudioToConvert" xml:space="preserve">
+    <value>请选择要转换的音频文件</value>
+  </data>
+    <data name="AudioFileFilter" xml:space="preserve">
+    <value>音频文件|*.wav;*.mp3;*.aac;*.ogg;*.flac;*.m4a;*.wma;*.ape;*.acb;*.awb;*.mp4</value>
+  </data>
+
+    <!-- VideoConvertToolController -->
+    <data name="SelectVideoToConvert" xml:space="preserve">
+    <value>请选择要转换的视频文件</value>
+  </data>
+    <data name="VideoFileFilter" xml:space="preserve">
+    <value>视频或者图片|*.mp4;*.mov;*.avi;*.mkv;*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.webp;*.svg;*.dat;*.usm</value>
+  </data>
+
+    <!-- ModController -->
+    <data name="UnsupportedConfigVersion" xml:space="preserve">
+    <value>无法兼容的配置文件版本</value>
+  </data>
+    <data name="AquaMaiNotInstalled" xml:space="preserve">
+    <value>AquaMai 没有安装</value>
+  </data>
+
+</root>

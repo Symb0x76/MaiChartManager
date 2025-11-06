@@ -6,8 +6,10 @@ import ProblemsDisplay from "@/components/ProblemsDisplay";
 import configSortStub from './configSort.yaml'
 import { useMagicKeys, whenever } from "@vueuse/core";
 import ConfigEntry from './ConfigEntry';
-import { getSectionPanelOverride, getNameForPath } from './utils';
+import { getSectionPanelOverride, getNameForPath, getBigSectionName } from './utils';
 import comments from "./modComments.yaml";
+import { useI18n } from 'vue-i18n';
+import { locale } from "@/locales";
 
 const ConfigSection = defineComponent({
   props: {
@@ -16,7 +18,19 @@ const ConfigSection = defineComponent({
     sectionState: { type: Object as PropType<ISectionState>, required: true },
   },
   setup(props, { emit }) {
+    const { t, te } = useI18n();
+
     const CustomPanel = getSectionPanelOverride(props.section.path!);
+    const comment = computed(() => {
+      const localeKey = 'mod.commentOverrides.' + props.section.path!.replace(/\./g, '_');
+      if (te(localeKey)) {
+        return t(localeKey);
+      }
+      if (locale.value.startsWith('zh')) {
+        return props.section.attribute?.comment?.commentZh;
+      }
+      return props.section.attribute?.comment?.commentEn;
+    })
 
     return () => <NFlex vertical class="p-1 border-transparent border-solid border-1px rd hover:border-yellow-5">
       {!props.section.attribute!.alwaysEnabled && <NFormItem label={getNameForPath(props.section.path!, props.section.path!.split('.').pop()!, props.section.attribute?.comment?.nameZh)} labelPlacement="left" labelWidth="9em" showFeedback={false}
@@ -26,9 +40,9 @@ const ConfigSection = defineComponent({
         <NFlex vertical class="w-full ws-pre-line">
           <NFlex class="h-34px" align="center">
             <NSwitch v-model:value={props.sectionState.enabled}/>
-            {comments.shouldEnableOptions[props.section.path!] && !props.sectionState.enabled && <ProblemsDisplay problems={['需要开启此选项']}/>}
+            {comments.shouldEnableOptions[props.section.path!] && !props.sectionState.enabled && <ProblemsDisplay problems={[t('mod.needEnableOption')]}/>}
           </NFlex>
-          {comments.commentOverrides[props.section.path!] || props.section.attribute?.comment?.commentZh}
+          {comment.value}
         </NFlex>
       </NFormItem>}
       {props.sectionState.enabled && (
@@ -52,6 +66,7 @@ export default defineComponent({
     const search = ref('');
     const searchRef = ref();
     const configSort = computed(() => props.config?.configSort || configSortStub)
+    const { t } = useI18n();
 
     const { ctrl_f } = useMagicKeys({
       passive: false,
@@ -89,10 +104,10 @@ export default defineComponent({
       return filteredSections.value?.filter(it => !knownSections.includes(it.path!) && !it.attribute!.exampleHidden) || [];
     });
 
-    return () => <div class="grid cols-[14em_auto] max-[900px]:cols-1">
+    return () => <div class="grid cols-[15em_auto] max-[900px]:cols-1">
       <NAnchor type="block" offsetTarget="#scroll" class={["max-[900px]:hidden"]}>
-        {bigSections.value.map((key) => <NAnchorLink key={key} title={key} href={`#${key}`}/>)}
-        {otherSection.value.length > 0 && <NAnchorLink key="其他" title="其他" href="#其他"/>}
+        {bigSections.value.map((key) => <NAnchorLink key={key} title={getBigSectionName(key!)} href={`#${key}`}/>)}
+        {otherSection.value.length > 0 && <NAnchorLink key={t('mod.other')} title={t('mod.other')} href={`#${t('mod.other')}`}/>}
       </NAnchor>
       <NScrollbar class="h-[calc(100dvh-160px)] p-2 relative"
         // @ts-ignore
@@ -103,18 +118,18 @@ export default defineComponent({
             <NPopover trigger="click">{{
               trigger: () => <NButton secondary size="small"><span class="i-ic-baseline-menu text-lg"/></NButton>,
               default: () => <NAnchor type="block" offsetTarget="#scroll">
-                {bigSections.value.map((key) => <NAnchorLink key={key} title={key} href={`#${key}`}/>)}
-                {otherSection.value.length > 0 && <NAnchorLink key="其他" title="其他" href="#其他"/>}
+                {bigSections.value.map((key) => <NAnchorLink key={key} title={getBigSectionName(key!)} href={`#${key}`}/>)}
+                {otherSection.value.length > 0 && <NAnchorLink key={t('mod.other')} title={t('mod.other')} href={`#${t('mod.other')}`}/>}
               </NAnchor>
             }}</NPopover>
           </div>
-          <NInput v-model:value={search.value} placeholder="搜索" size="small" clearable ref={searchRef}/>
+          <NInput v-model:value={search.value} placeholder={t('mod.searchPlaceholder')} size="small" clearable ref={searchRef}/>
         </div>
         {bigSections.value.map((big) => <div id={big} key={big}>
           <NDivider titlePlacement="left" class="mt-0! pt-8 sticky top-0! bg-white/80! z-1"
             // @ts-ignore
             onClick={() => location.href = `#${big}`}
-          >{big}</NDivider>
+          >{getBigSectionName(big!)}</NDivider>
           {filteredSections.value?.filter(it => {
             if (props.useNewSort) {
               return configSort.value[big!].includes(it.path!);
@@ -130,10 +145,10 @@ export default defineComponent({
           })}
         </div>)}
         {otherSection.value.length > 0 &&
-          <div id={"其他"}>
-            <NDivider titlePlacement="left" class="mt-2!">其他</NDivider>
+          <div id={t('mod.other')}>
+            <NDivider titlePlacement="left" class="mt-2!">{t('mod.other')}</NDivider>
             {otherSection.value.map((section) =>
-              <ConfigSection key="其他" section={section}
+              <ConfigSection key={t('mod.other')} section={section}
                              entryStates={props.config.entryStates!}
                              sectionState={props.config.sectionStates![section.path!]}/>)}
           </div>}

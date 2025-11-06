@@ -63,10 +63,60 @@ public class AppMain : ISingleInstance
                 catch (Exception e)
                 {
                     SentrySdk.CaptureException(e, s => s.TransactionName = "读取配置文件");
-                    MessageBox.Show("看起来配置文件损坏了…已经重置配置文件", "不太对劲", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Locale.ConfigCorrupted, Locale.ConfigCorruptedTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     File.Delete(cfgFilePath);
                 }
             }
+
+            // 初始化语言设置
+            if (StaticSettings.Config.Locale == null)
+            {
+                // 首次启动，从系统语言检测
+                var systemCulture = System.Globalization.CultureInfo.CurrentUICulture;
+                var cultureName = systemCulture.Name;
+                
+                // 检测语言：简体中文、繁体中文、英文
+                if (cultureName.StartsWith("zh-CN") || cultureName.StartsWith("zh-Hans") || cultureName == "zh")
+                {
+                    StaticSettings.CurrentLocale = "zh";
+                }
+                else if (cultureName.StartsWith("zh-TW") || cultureName.StartsWith("zh-HK") || cultureName.StartsWith("zh-Hant"))
+                {
+                    StaticSettings.CurrentLocale = "zh-TW";
+                }
+                else
+                {
+                    // 非中文系统默认英文
+                    StaticSettings.CurrentLocale = "en";
+                }
+                
+                StaticSettings.Config.Locale = StaticSettings.CurrentLocale;
+                // 保存配置
+                try
+                {
+                    var json = JsonSerializer.Serialize(StaticSettings.Config, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(cfgFilePath, json);
+                }
+                catch (Exception e)
+                {
+                    _loggerFactory.CreateLogger<AppMain>().LogError(e, "保存配置文件失败");
+                }
+            }
+            else
+            {
+                StaticSettings.CurrentLocale = StaticSettings.Config.Locale;
+            }
+
+            // 设置 Locale 资源管理器的 Culture（这会影响所有线程）
+            var culture = StaticSettings.CurrentLocale switch
+            {
+                "zh" => new System.Globalization.CultureInfo("zh-CN"),
+                "zh-TW" => new System.Globalization.CultureInfo("zh-TW"),
+                _ => new System.Globalization.CultureInfo("en-US")
+            };
+            Locale.Culture = culture;
+            System.Globalization.CultureInfo.CurrentCulture = culture;
+            System.Globalization.CultureInfo.CurrentUICulture = culture;
 
             string? availableVersion = null;
             try
@@ -77,7 +127,7 @@ public class AppMain : ISingleInstance
 
             if (availableVersion == null && !IsFromStartup)
             {
-                var answer = MessageBox.Show("WebView2 运行时未安装，在启动之后可能会白屏…\n\n如果你觉得你已经安装了 WebView2 运行时，请尝试重启电脑。\n\n要尝试安装一下 WebView2 吗？", "WebView2 未安装", MessageBoxButtons.YesNo,
+                var answer = MessageBox.Show(Locale.WebView2NotInstalled, Locale.WebView2NotInstalledTitle, MessageBoxButtons.YesNo,
                     MessageBoxIcon.Warning);
                 if (answer == DialogResult.Yes)
                 {
