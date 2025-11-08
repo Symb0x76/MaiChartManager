@@ -123,45 +123,60 @@ public class MusicXmlWithABJacket(string filePath, string gamePath, string asset
 
     public void Delete()
     {
-        if (HasJacket)
+        if (HasJacket && !JacketPath.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase))
         {
-            try {
+            try
+            {
                 FileSystem.DeleteFile(JacketPath);
-            } catch {
+            }
+            catch
+            {
                 Console.WriteLine($"删除 jacket 失败: {JacketPath}");
             }
         }
 
-        if (StaticSettings.AcbAwb.TryGetValue($"music{NonDxId:000000}.acb", out var acb))
+        if (StaticSettings.AcbAwb.TryGetValue($"music{NonDxId:000000}.acb", out var acb) && acb?.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase) == false)
         {
-            try {
+            try
+            {
                 FileSystem.DeleteFile(acb);
-            } catch {
+            }
+            catch
+            {
                 Console.WriteLine($"删除 acb 失败: {acb}");
             }
         }
 
-        if (StaticSettings.AcbAwb.TryGetValue($"music{NonDxId:000000}.awb", out var awb))
+        if (StaticSettings.AcbAwb.TryGetValue($"music{NonDxId:000000}.awb", out var awb) && awb?.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase) == false)
         {
-            try {
+            try
+            {
                 FileSystem.DeleteFile(awb);
-            } catch {
+            }
+            catch
+            {
                 Console.WriteLine($"删除 awb 失败: {awb}");
             }
         }
 
-        if (StaticSettings.MovieDataMap.TryGetValue(NonDxId, out var movieData))
+        if (StaticSettings.MovieDataMap.TryGetValue(NonDxId, out var movieData) && movieData?.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase) == false)
         {
-            try {
+            try
+            {
                 FileSystem.DeleteFile(movieData);
-            } catch {
+            }
+            catch
+            {
                 Console.WriteLine($"删除 movieData 失败: {movieData}");
             }
         }
 
-        try {
+        try
+        {
             FileSystem.DeleteDirectory(Path.GetDirectoryName(FilePath), DeleteDirectoryOption.DeleteAllContents);
-        } catch {
+        }
+        catch
+        {
             Console.WriteLine($"删除目录失败: {Path.GetDirectoryName(FilePath)}");
         }
     }
