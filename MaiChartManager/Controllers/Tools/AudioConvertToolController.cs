@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MaiChartManager.Utils;
+using Microsoft.AspNetCore.Mvc;
 using Sitreamai;
 
 namespace MaiChartManager.Controllers.Tools;
@@ -10,15 +11,13 @@ public class AudioConvertToolController : ControllerBase
     [HttpPost]
     public IActionResult AudioConvertTool()
     {
-        if (AppMain.BrowserWin is null) return BadRequest(Locale.BrowserNotInitialized);
-
         var dialog = new OpenFileDialog()
         {
             Title = Locale.SelectAudioToConvert,
             Filter = Locale.AudioFileFilter,
         };
 
-        if (AppMain.BrowserWin.Invoke(() => dialog.ShowDialog(AppMain.BrowserWin)) != DialogResult.OK)
+        if (WinUtils.ShowDialog(dialog) != DialogResult.OK)
             return BadRequest(Locale.FileNotSelected);
 
         var inputFile = dialog.FileName;

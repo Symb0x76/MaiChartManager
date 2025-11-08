@@ -19,20 +19,13 @@ public class VideoConvertToolController(ILogger<VideoConvertToolController> logg
     {
         Response.Headers.Append("Content-Type", "text/event-stream");
 
-        if (AppMain.BrowserWin is null)
-        {
-            await Response.WriteAsync($"event: {VideoConvertEventType.Error}\ndata: {Locale.BrowserNotInitialized}\n\n");
-            await Response.Body.FlushAsync();
-            return;
-        }
-
         var dialog = new OpenFileDialog()
         {
             Title = Locale.SelectVideoToConvert,
             Filter = Locale.VideoFileFilter,
         };
 
-        if (AppMain.BrowserWin.Invoke(() => dialog.ShowDialog(AppMain.BrowserWin)) != DialogResult.OK)
+        if (WinUtils.ShowDialog(dialog) != DialogResult.OK)
         {
             await Response.WriteAsync($"event: {VideoConvertEventType.Error}\ndata: {Locale.FileNotSelected}\n\n");
             await Response.Body.FlushAsync();
@@ -50,7 +43,7 @@ public class VideoConvertToolController(ILogger<VideoConvertToolController> logg
             if (inputExt is ".dat" or ".usm")
             {
                 var outputMp4Path = Path.Combine(directory!, fileNameWithoutExt + ".mp4");
-                
+
                 await VideoConvert.ConvertUsmToMp4(
                     inputFile,
                     outputMp4Path,
@@ -59,7 +52,7 @@ public class VideoConvertToolController(ILogger<VideoConvertToolController> logg
                         await Response.WriteAsync($"event: {VideoConvertEventType.Progress}\ndata: {percent}\n\n");
                         await Response.Body.FlushAsync();
                     });
-                
+
                 await Response.WriteAsync($"event: {VideoConvertEventType.Success}\ndata: {outputMp4Path}\n\n");
                 await Response.Body.FlushAsync();
             }
@@ -67,7 +60,7 @@ public class VideoConvertToolController(ILogger<VideoConvertToolController> logg
             {
                 // 普通视频转 USM/DAT
                 var outputDatPath = Path.Combine(directory!, fileNameWithoutExt + ".dat");
-                
+
                 await VideoConvert.ConvertVideoToUsm(
                     inputFile,
                     outputDatPath,

@@ -1,4 +1,5 @@
 ﻿using MaiChartManager.Attributes;
+using MaiChartManager.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Net.Http.Headers;
@@ -55,13 +56,12 @@ public class AssetDirController(StaticSettings settings, ILogger<AssetDirControl
     [HttpPost]
     public void RequestLocalImportDir()
     {
-        if (AppMain.BrowserWin is null) return;
         var dialog = new FolderBrowserDialog
         {
             Description = Locale.SelectAssetDirectory,
-            ShowNewFolderButton = false
+            ShowNewFolderButton = false,
         };
-        if (AppMain.BrowserWin.Invoke(() => dialog.ShowDialog(AppMain.BrowserWin)) != DialogResult.OK) return;
+        if (WinUtils.ShowDialog(dialog) != DialogResult.OK) return;
         var src = dialog.SelectedPath;
         logger.LogInformation("LocalImportDir: {src}", src);
         if (src is null) return;

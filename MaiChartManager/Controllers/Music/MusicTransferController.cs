@@ -22,12 +22,11 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
     [Route("/MaiChartManagerServlet/[action]Api")]
     public void RequestCopyTo(RequestCopyToRequest request)
     {
-        if (AppMain.BrowserWin is null) return;
         var dialog = new FolderBrowserDialog
         {
             Description = Locale.SelectTargetLocation
         };
-        if (AppMain.BrowserWin.Invoke(() => dialog.ShowDialog(AppMain.BrowserWin)) != DialogResult.OK) return;
+        if (WinUtils.ShowDialog(dialog) != DialogResult.OK) return;
         var dest = dialog.SelectedPath;
         logger.LogInformation("CopyTo: {dest}", dest);
 
@@ -42,7 +41,7 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
                 CancelMessage = Locale.Cancelling,
                 HideTimeRemaining = true,
             };
-            progress.Start(AppMain.BrowserWin);
+            progress.Start(AppMain.BrowserWin!);
             progress.UpdateProgress(0, (ulong)request.music.Length);
         }
 
@@ -385,13 +384,13 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
         {
             string? pvMp4Path = null;
             var ext = Path.GetExtension(movieUsmPath).ToLowerInvariant();
-            
+
             if (ext == ".dat" || ext == ".usm")
             {
                 var tmpDir = Directory.CreateTempSubdirectory();
                 logger.LogInformation("Temp dir: {tmpDir}", tmpDir.FullName);
                 pvMp4Path = Path.Combine(tmpDir.FullName, "pv.mp4");
-                
+
                 await VideoConvert.ConvertUsmToMp4(movieUsmPath, pvMp4Path);
             }
             else if (ext == ".mp4")

@@ -43,4 +43,10 @@ public static class WinUtils
             // ignored
         }
     }
+
+    public static DialogResult ShowDialog(CommonDialog dialog)
+    {
+        if (AppMain.BrowserWin == null) return DialogResult.Cancel;
+        return AppMain.BrowserWin.Invoke(() => dialog.ShowDialog(AppMain.BrowserWin));
+    }
 }
