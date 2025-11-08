@@ -123,7 +123,7 @@ music:
     audioPreviewSelectRegion: Selection
     includeB35: Include in B35
     includeB15: Include in B15
-    versionHint: 'If game version is 1.{gameVersion}, numbers >= {b15ver} will appear in B15, otherwise in B35'
+    versionHint: 'If game version is 1.{gameVersion}, numbers >= {b15ver} will appear in B15, otherwise in B35. This value also controls the order when sorting by release date.'
     idConflictWarning: 'ID conflicts in following directories'
   batch:
     title: Batch Actions

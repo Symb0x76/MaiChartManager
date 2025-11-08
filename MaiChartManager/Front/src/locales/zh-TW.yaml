@@ -117,7 +117,7 @@ music:
     audioPreviewSelectRegion: 選區
     includeB35: 計入 B35
     includeB15: 計入 B15
-    versionHint: 如果遊戲版本是 1.{gameVersion} 的話，這裡的數字大於等於 {b15ver} 就會讓歌出現在 B15 裡面，否則就會出現在 B35 裡面
+    versionHint: 如果遊戲版本是 1.{gameVersion} 的話，這裡的數字大於等於 {b15ver} 就會讓歌出現在 B15 裡面，否則就會出現在 B35 裡面。這個值還會控制按上線時間排序時的順序
     idConflictWarning: 以下目錄中存在衝突的 ID
   batch:
     title: 批次操作
