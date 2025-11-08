@@ -340,6 +340,16 @@ public class MusicXml
         }
     }
 
+    public int SubLockType
+    {
+        get => int.TryParse(RootNode.SelectSingleNode("subLockType")?.InnerText ?? "0", out var result) ? result : 0;
+        set
+        {
+            Modified = true;
+            RootNode.SelectSingleNode("subLockType").InnerText = (value).ToString();
+        }
+    }
+
     public bool Disable
     {
         get => bool.TryParse(RootNode.SelectSingleNode("disable")?.InnerText ?? "false", out var result) && result;

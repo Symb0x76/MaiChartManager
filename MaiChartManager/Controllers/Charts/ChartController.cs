@@ -87,6 +87,10 @@ public class ChartController(StaticSettings settings, ILogger<StaticSettings> lo
             {
                 chart.Enable = value;
             }
+            if (level == 4)
+            {
+                music.SubLockType = 0;
+            }
         }
     }
 }
