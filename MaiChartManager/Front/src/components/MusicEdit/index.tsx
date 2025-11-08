@@ -73,7 +73,7 @@ const Component = defineComponent({
                     <div class="flex items-center gap-2 w-full">
                         <NInput v-model:value={info.value.name} class="w-0 grow"/>
                         <NSwitch v-model:value={info.value.longMusic}/>
-                        {t('common.longMusic')}
+                        <div class="shrink-0">{t('common.longMusic')}</div>
                     </div>
                 </NFormItem>
                 <NFormItem label={t('music.edit.artist')}>

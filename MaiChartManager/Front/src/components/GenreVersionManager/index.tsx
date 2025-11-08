@@ -19,11 +19,11 @@ export default defineComponent({
     const { t } = useI18n();
     const text = computed(() => show.value === EDIT_TYPE.Genre ? t('genre.title') : t('version.title'));
     const editingId = ref(-1);
-    
-    const options = [
+
+    const options = computed(()=>[
       {label: t('genre.management'), key: EDIT_TYPE.Genre},
       {label: t('version.management'), key: EDIT_TYPE.Version},
-    ];
+    ]);
 
     const list = computed(() => {
       const data = show.value === EDIT_TYPE.Genre ? genreList : addVersionList;
@@ -35,7 +35,7 @@ export default defineComponent({
     }
 
     return () => (
-      <NDropdown options={options} trigger="click" onSelect={handleSelect} placement="bottom-end">
+      <NDropdown options={options.value} trigger="click" onSelect={handleSelect} placement="bottom-end">
         <NButton secondary class="pr-1">
           {t('genre.categoryManagement')}
           <span class="i-mdi-arrow-down-drop text-6 translate-y-.25"/>
