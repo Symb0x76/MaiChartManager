@@ -110,6 +110,8 @@ public static class VideoConvert
         /// 输入文件 MIME 类型
         /// </summary>
         public string? ContentType { get; set; }
+
+        public bool TaskbarProgress { get; set; } = true;
     }
 
     /// <summary>
@@ -120,6 +122,10 @@ public static class VideoConvert
         var tmpDir = Directory.CreateTempSubdirectory();
         try
         {
+            if (options.TaskbarProgress)
+            {
+                WinUtils.SetTaskbarProgressIndeterminate();
+            }
             // 第一步：转换为 VP9 (IVF) 或 H264 (MP4)
             var intermediateFile = Path.Combine(tmpDir.FullName, options.UseH264 ? "out.mp4" : "out.ivf");
             await ConvertToVp9OrH264(options, intermediateFile, tmpDir.FullName);
@@ -138,6 +144,10 @@ public static class VideoConvert
             }
             else
             {
+                if (options.TaskbarProgress)
+                {
+                    WinUtils.SetTaskbarProgressIndeterminate();
+                }
                 finalFile = Path.Combine(tmpDir.FullName, "out.usm");
                 WannaCRI.WannaCRI.CreateUsm(intermediateFile);
                 if (!File.Exists(finalFile) || new FileInfo(finalFile).Length == 0)
@@ -152,6 +162,7 @@ public static class VideoConvert
         }
         finally
         {
+            WinUtils.ClearTaskbarProgress();
             // 清理临时目录
             try
             {
@@ -244,6 +255,13 @@ public static class VideoConvert
                 options.OnProgress((int)args.Percent);
             };
         }
+        if (options.TaskbarProgress)
+        {
+            conversion.OnProgress += (sender, args) =>
+            {
+                WinUtils.SetTaskbarProgress((ulong)args.Percent);
+            };
+        }
 
         Console.WriteLine("Conversion command: " + conversion.Build());
 
@@ -299,14 +317,14 @@ public static class VideoConvert
         {
             var movieUsm = Path.Combine(tmpDir.FullName, "movie.usm");
             var ext = Path.GetExtension(inputPath).ToLowerInvariant();
-            
+
             onProgress?.Invoke(10);
             FileSystem.CopyFile(inputPath, movieUsm, UIOption.OnlyErrorDialogs);
 
             // 解包 USM
             onProgress?.Invoke(30);
             WannaCRI.WannaCRI.UnpackUsm(movieUsm, Path.Combine(tmpDir.FullName, "output"));
-            
+
             // 查找解包后的 IVF 文件
             onProgress?.Invoke(50);
             var outputIvfFile = Directory.EnumerateFiles(Path.Combine(tmpDir.FullName, @"output\movie.usm\videos")).FirstOrDefault();
@@ -352,4 +370,3 @@ public static class VideoConvert
         }
     }
 }
-
