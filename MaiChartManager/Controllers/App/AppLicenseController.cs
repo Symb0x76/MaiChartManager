@@ -5,7 +5,7 @@ namespace MaiChartManager.Controllers.App;
 
 [ApiController]
 [Route("MaiChartManagerServlet/[action]Api")]
-public class AppLicenseController
+public class AppLicenseController : Controller
 {
     public record RequestPurchaseResult(string? ErrorMessage, StorePurchaseStatus Status);
 

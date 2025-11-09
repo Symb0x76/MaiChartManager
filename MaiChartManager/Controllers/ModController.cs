@@ -174,18 +174,6 @@ public class ModController(StaticSettings settings, ILogger<ModController> logge
             }
         }
         var config = GetCurrentAquaMaiConfig();
-        // 未解之谜
-        // logger.LogInformation("{}", lockCredits.GetType());
-        // var type = typeof(ModController).GetField("lockCredits", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
-        // logger.LogInformation("{}", type.GetType());
-        // logger.LogInformation("{}", AquaMaiDllInstalledPath);
-        // logger.LogInformation("{}", config.GetEntryState(config.ReflectionManager.Entries.First(it => it.Path == "GameSettings.CreditConfig.LockCredits")).DefaultValue.GetType());
-        // logger.LogInformation("{}", config.GetEntryState(config.ReflectionManager.Entries.First(it => it.Path == "GameSettings.CreditConfig.LockCredits")).Value.GetType());
-        // logger.LogInformation("{}", config.ReflectionManager.Entries.First(it => it.Path == "GameSettings.CreditConfig.LockCredits").Field.FieldType);
-        //
-        // logger.LogInformation("{}", config.GetEntryState(config.ReflectionManager.Entries.First(it => it.Path == "GameSettings.CreditConfig.LockCredits")).Value.GetType());
-        // logger.LogInformation("{}", config.ReflectionManager.Entries.First(it => it.Path == "GameSettings.CreditConfig.LockCredits").Field.FieldType);
-
         return new AquaMaiConfigDto.ConfigDto(
             config.ReflectionManager.Sections.Select(section =>
             {
@@ -199,7 +187,7 @@ public class ModController(StaticSettings settings, ILogger<ModController> logge
     }
 
     [HttpPut]
-    public void SetAquaMaiConfig(AquaMaiConfigDto.ConfigSaveDto config)
+    public async Task SetAquaMaiConfig(AquaMaiConfigDto.ConfigSaveDto config)
     {
         var jsonOptions = new JsonSerializerOptions();
         jsonOptions.Converters.Add(new JsonStringEnumConverter());
@@ -226,36 +214,39 @@ public class ModController(StaticSettings settings, ILogger<ModController> logge
                 var newEntryValue = newEntryState.Value.Deserialize(entry.Field.FieldType, jsonOptions);
                 if (!oldEntryState.Value.Equals(newEntryValue))
                 {
-                    // logger.LogInformation("Not same: {Path}, {type1}, {newEntryValue}, {type2}, {oldEntryState}", entry.Path, newEntryValue?.GetType(), newEntryValue, oldEntryState.Value?.GetType(),
-                    //     oldEntryState.Value);
                     configEdit.SetEntryValue(entry, newEntryValue);
                 }
                 else if (!newEntryState.IsDefault)
                 {
-                    // logger.LogInformation("Not default: {Path}", entry.Path);
                     configEdit.SetEntryValue(entry, newEntryValue);
                 }
             }
         }
 
-        StaticSettings.UpdateAssetPathsFromAquaMaiConfig(configEdit);
-        // 可能修改了歌曲封面目录
-        settings.ScanMusicList();
         var serializer = configInterface.CreateConfigSerializer(new IConfigSerializer.Options()
         {
-            Lang = "zh",
-            IncludeBanner = true
+            Lang = StaticSettings.CurrentLocale.StartsWith("zh") ? "zh" : "en",
+            IncludeBanner = true,
         });
+        var serializedConfig = serializer.Serialize(configEdit);
 
         if (System.IO.File.Exists(AquaMaiConfigPath))
         {
+            var originalContent = await System.IO.File.ReadAllTextAsync(AquaMaiConfigPath);
+            if (originalContent == serializedConfig)
+            {
+                // 没改动就不写了
+                return;
+            }
             Directory.CreateDirectory(AquaMaiConfigBackupDirPath);
             var backupPath = Path.Combine(AquaMaiConfigBackupDirPath, $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.toml");
-            var originalContent = System.IO.File.ReadAllBytes(AquaMaiConfigPath);
-            System.IO.File.WriteAllBytes(backupPath, originalContent);
+            await System.IO.File.WriteAllTextAsync(backupPath, originalContent);
         }
 
-        System.IO.File.WriteAllText(Path.Combine(StaticSettings.GamePath, "AquaMai.toml"), serializer.Serialize(configEdit));
+        await System.IO.File.WriteAllTextAsync(Path.Combine(StaticSettings.GamePath, "AquaMai.toml"), serializer.Serialize(configEdit));
+        StaticSettings.UpdateAssetPathsFromAquaMaiConfig(configEdit);
+        // 可能修改了歌曲封面目录
+        settings.ScanMusicList();
     }
 
     [HttpPost]

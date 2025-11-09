@@ -73,7 +73,7 @@ public static class IapManager
         var res = await StoreContext.RequestPurchaseAsync(storeId);
         if (res.Status == StorePurchaseStatus.Succeeded)
         {
-            await Init();
+            License = LicenseStatus.Active;
         }
 
         return res;
