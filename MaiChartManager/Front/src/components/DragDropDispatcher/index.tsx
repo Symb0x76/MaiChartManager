@@ -16,7 +16,7 @@ export default defineComponent({
       const handles = await Promise.all(Array.from(items).map(item => item.getAsFileSystemHandle()));
       console.log(handles);
       if (handles.every(handle => handle instanceof FileSystemDirectoryHandle)) {
-        startProcessMusicImport(handles);
+        startProcessMusicImport(handles.length === 1 ? handles[0] : handles);
       }
     }
 

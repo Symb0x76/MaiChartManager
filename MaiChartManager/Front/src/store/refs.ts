@@ -4,7 +4,6 @@ import api, { aquaMaiVersionConfig } from "@/client/api";
 import { captureException } from "@sentry/vue";
 import posthog from "posthog-js";
 import { useStorage, useWindowFocus, whenever } from "@vueuse/core";
-import deniedOgg from "@/assets/Denied.ogg";
 import { locale } from "@/locales";
 
 export const error = ref();
@@ -13,7 +12,7 @@ export const errorContext = ref<string>();
 
 export const globalCapture = async (err: any, context: string) => {
   console.log(err)
-  if (err instanceof Response) {
+  if (err instanceof Response && !(err as any).error) {
     if (!err.bodyUsed) {
       // @ts-ignore
       const errText = err.error = await err.text();
@@ -39,7 +38,6 @@ export const globalCapture = async (err: any, context: string) => {
     errorId: errorId.value,
     message: error.value?.error?.message || error.value?.error?.toString() || error.value?.message || error.value?.toString(),
   })
-  new Audio(deniedOgg).play();
 }
 
 export const showNeedPurchaseDialog = ref(false);
