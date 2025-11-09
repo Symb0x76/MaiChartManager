@@ -168,6 +168,15 @@ namespace MaiChartManager {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Chart file not exist.
+        /// </summary>
+        internal static string ChartFileNotFound {
+            get {
+                return ResourceManager.GetString("ChartFileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Fixed some minor errors in chart difficulty {0}.
         /// </summary>
         internal static string ChartFixedMinorErrors {
@@ -654,15 +663,6 @@ namespace MaiChartManager {
         internal static string PathNotGameDir {
             get {
                 return ResourceManager.GetString("PathNotGameDir", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to .
-        /// </summary>
-        internal static string qwq {
-            get {
-                return ResourceManager.GetString("qwq", resourceCulture);
             }
         }
         

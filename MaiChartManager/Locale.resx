@@ -284,5 +284,7 @@ If you notice any issues with the conversion result, you can try testing it in A
     <data name="AquaMaiNotInstalled" xml:space="preserve">
     <value>AquaMai is not installed</value>
   </data>
-
+    <data name="ChartFileNotFound" xml:space="preserve">
+      <value>Chart file not exist</value>
+    </data>
 </root>

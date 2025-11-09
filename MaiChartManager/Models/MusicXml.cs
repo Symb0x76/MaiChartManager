@@ -471,9 +471,10 @@ public partial class MusicXml
             _node = node;
             _parent = parent;
 
-            if (!File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(_parent.FilePath), Path)))
+            if (!File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(_parent.FilePath), Path)) &&
+                !File.Exists(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(_parent.FilePath), Path.Replace(".ma2", "_L.ma2"))))
             {
-                Problems.Add("谱面文件不存在");
+                Problems.Add(Locale.ChartFileNotFound);
             }
         }
 

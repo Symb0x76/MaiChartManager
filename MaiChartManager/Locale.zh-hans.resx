@@ -276,5 +276,7 @@
     <data name="AquaMaiNotInstalled" xml:space="preserve">
     <value>AquaMai 没有安装</value>
   </data>
-
+    <data name="ChartFileNotFound" xml:space="preserve">
+      <value>谱面文件不存在</value>
+    </data>
 </root>
