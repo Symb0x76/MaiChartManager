@@ -29,7 +29,7 @@ public partial class Launcher : Form
 # if DEBUG
         checkBox1.Checked = true;
         StaticSettings.Config.Export = true;
-        textBox1.Text = @"D:\Arcade\Maimai\SDEZ160 Debug\Package";
+        textBox1.Text = @"D:\Arcade\Maimai\SDEZ160 Debug";
         StartClicked(null, null);
         notifyIcon1.Visible = true;
         WindowState = FormWindowState.Minimized;
@@ -114,15 +114,19 @@ public partial class Launcher : Form
         }
 
         StaticSettings.GamePath = textBox1.Text;
-        if (ContainsSpecialCharacters(StaticSettings.GamePath))
+        if (!Directory.Exists(StaticSettings.StreamingAssets) && Directory.Exists(Path.Combine(StaticSettings.GamePath, "Package")))
         {
-            MessageBox.Show(Locale.PathContainsSpecialChars, Locale.PathContainsSpecialCharsTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            StaticSettings.GamePath = Path.Combine(StaticSettings.GamePath, "Package");
         }
-
-        if (!Path.Exists(StaticSettings.StreamingAssets))
+        if (!Directory.Exists(StaticSettings.StreamingAssets))
         {
             MessageBox.Show(Locale.PathNotGameDir);
             return;
+        }
+
+        if (ContainsSpecialCharacters(StaticSettings.GamePath))
+        {
+            MessageBox.Show(Locale.PathContainsSpecialChars, Locale.PathContainsSpecialCharsTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
 
         if (!checkBox1.Checked && checkBox_startup.Checked)
