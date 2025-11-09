@@ -123,8 +123,9 @@ public class MusicXmlWithABJacket(string filePath, string gamePath, string asset
 
     public void Delete()
     {
-        if (HasJacket && !JacketPath.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase))
+        if (HasJacket && !JacketPath?.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase) == true)
         {
+            Console.WriteLine("删除 jacket: " + JacketPath);
             try
             {
                 FileSystem.DeleteFile(JacketPath);
@@ -137,6 +138,7 @@ public class MusicXmlWithABJacket(string filePath, string gamePath, string asset
 
         if (StaticSettings.AcbAwb.TryGetValue($"music{NonDxId:000000}.acb", out var acb) && acb?.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase) == false)
         {
+            Console.WriteLine("删除 acb: " + acb);
             try
             {
                 FileSystem.DeleteFile(acb);
@@ -149,6 +151,7 @@ public class MusicXmlWithABJacket(string filePath, string gamePath, string asset
 
         if (StaticSettings.AcbAwb.TryGetValue($"music{NonDxId:000000}.awb", out var awb) && awb?.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase) == false)
         {
+            Console.WriteLine("删除 awb: " + awb);
             try
             {
                 FileSystem.DeleteFile(awb);
@@ -161,6 +164,7 @@ public class MusicXmlWithABJacket(string filePath, string gamePath, string asset
 
         if (StaticSettings.MovieDataMap.TryGetValue(NonDxId, out var movieData) && movieData?.Contains(@"\A000\", StringComparison.InvariantCultureIgnoreCase) == false)
         {
+            Console.WriteLine("删除 movieData: " + movieData);
             try
             {
                 FileSystem.DeleteFile(movieData);
@@ -173,6 +177,7 @@ public class MusicXmlWithABJacket(string filePath, string gamePath, string asset
 
         try
         {
+            Console.WriteLine("删除目录: " + Path.GetDirectoryName(FilePath));
             FileSystem.DeleteDirectory(Path.GetDirectoryName(FilePath), DeleteDirectoryOption.DeleteAllContents);
         }
         catch
