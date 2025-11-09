@@ -17,7 +17,7 @@ public partial class Launcher : Form
         InitializeComponent();
         label3.Text = $@"v{Application.ProductVersion}";
 # if CRACK
-        label3.Text += " 此版本不可流通";
+        label3.Text += " 内部版本";
 # endif
         checkBox1.Checked = StaticSettings.Config.Export;
         textBox1.Text = StaticSettings.Config.GamePath;

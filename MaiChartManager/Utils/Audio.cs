@@ -1,19 +1,16 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
-using NAudio.Lame;
+﻿using NAudio.Lame;
 using NAudio.Wave;
 using VGAudio;
 using VGAudio.Cli;
 using Xv2CoreLib.ACB;
 
-namespace Sitreamai;
+namespace MaiChartManager.Utils;
 
 public static class Audio
 {
-    public static void ConvertToMai(string srcPath, string savePath, float padding = 0, Stream src = null, string previewFilename = null, Stream preview = null)
+    public static void ConvertToMai(string srcPath, string savePath, float padding = 0, Stream? src = null, string? previewFilename = null, Stream? preview = null)
     {
-        var wrapper = new ACB_Wrapper(ACB_File.Load(ReadResourceFile(previewFilename is null ? "Sitreamai.Resources.nopreview.acb" : "Sitreamai.Resources.template.acb"), null));
+        var wrapper = new ACB_Wrapper(ACB_File.Load(File.ReadAllBytes(Path.Combine(StaticSettings.exeDir, previewFilename is null ? "nopreview.acb" : "template.acb")), null));
         var trackBytes = LoadAndConvertFile(srcPath, FileType.Hca, false, 9170825592834449000, padding, src);
 
         wrapper.Cues[0].AddTrackToCue(trackBytes, true, false, EncodeType.HCA);
@@ -26,22 +23,8 @@ public static class Audio
         wrapper.AcbFile.Save(savePath);
     }
 
-    private static byte[] ReadResourceFile(string filename)
-    {
-        using var s = Assembly.GetExecutingAssembly().GetManifestResourceStream(filename);
-        var buffer = new byte[1024];
-        using var ms = new MemoryStream();
-        while (true)
-        {
-            var read = s.Read(buffer, 0, buffer.Length);
-            if (read <= 0)
-                return ms.ToArray();
-            ms.Write(buffer, 0, read);
-        }
-    }
-
     // 不要 byte[] 转 memory stream 倒来倒去，直接传入 stream
-    public static byte[] LoadAndConvertFile(string path, FileType convertToType, bool loop, ulong encrpytionKey = 0, float padding = 0, Stream src = null)
+    public static byte[] LoadAndConvertFile(string path, FileType convertToType, bool loop, ulong encrpytionKey = 0, float padding = 0, Stream? src = null)
     {
         using var read = src ?? File.OpenRead(path);
         switch (Path.GetExtension(path).ToLowerInvariant())

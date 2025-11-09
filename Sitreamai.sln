@@ -2,8 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sitreamai", "Sitreamai\Sitreamai.csproj", "{5ABCC8F1-29A2-4493-98EB-AFD2CCF68FB7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaiChartManager", "MaiChartManager\MaiChartManager.csproj", "{16CDF3F3-C0E1-4D32-BFC9-07C8057B8F68}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimaiSharp", "SimaiSharp\SimaiSharp\SimaiSharp.csproj", "{5633AACB-9089-497C-8596-2C27BEAD2201}"
@@ -27,11 +25,6 @@ Global
 		Crack|x64 = Crack|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5ABCC8F1-29A2-4493-98EB-AFD2CCF68FB7}.Debug|x64.ActiveCfg = Debug|x64
-		{5ABCC8F1-29A2-4493-98EB-AFD2CCF68FB7}.Debug|x64.Build.0 = Debug|x64
-		{5ABCC8F1-29A2-4493-98EB-AFD2CCF68FB7}.Release|x64.ActiveCfg = Release|x64
-		{5ABCC8F1-29A2-4493-98EB-AFD2CCF68FB7}.Release|x64.Build.0 = Release|x64
-		{5ABCC8F1-29A2-4493-98EB-AFD2CCF68FB7}.Crack|x64.ActiveCfg = Release|x64
 		{16CDF3F3-C0E1-4D32-BFC9-07C8057B8F68}.Debug|x64.ActiveCfg = Debug|x64
 		{16CDF3F3-C0E1-4D32-BFC9-07C8057B8F68}.Debug|x64.Build.0 = Debug|x64
 		{16CDF3F3-C0E1-4D32-BFC9-07C8057B8F68}.Release|x64.ActiveCfg = Release|x64

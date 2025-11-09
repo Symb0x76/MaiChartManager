@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml;
 using NMeCab.Specialized;
 
-namespace Sitreamai.Models;
+namespace MaiChartManager.Models;
 
 public partial class MusicXml
 {

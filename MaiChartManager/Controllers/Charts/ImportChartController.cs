@@ -1,9 +1,9 @@
 ﻿using System.Text.RegularExpressions;
+using MaiChartManager.Utils;
 using MaiLib;
 using Microsoft.AspNetCore.Mvc;
 using SimaiSharp;
 using SimaiSharp.Structures;
-using Sitreamai;
 
 namespace MaiChartManager.Controllers.Charts;
 
@@ -240,7 +240,7 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
                 errors.Add(new ImportChartMessage(message, MessageLevel.Info));
             }
 
-            foreach (var i in (int[]) [7, 8, 0])
+            foreach (var i in (int[])[7, 8, 0])
             {
                 if (string.IsNullOrWhiteSpace(maiData.GetValueOrDefault($"inote_{i}"))) continue;
                 allChartText.Add(i, maiData.GetValueOrDefault($"inote_{i}"));
@@ -294,7 +294,7 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
                 try
                 {
                     var chart = TryParseChartSimaiSharp(chartText, kvp.Key, errors);
-                    paddings.Add(Converter.CalcMusicPadding(chart, first));
+                    paddings.Add(CalcMusicPadding(chart, first));
 
                     var candidate = TryParseChart(chartText, chart, kvp.Key, errors);
                     if (candidate is null) throw new Exception(Locale.ChartParseGenericError);
@@ -307,7 +307,7 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
                     fatal = true;
                 }
 
-                foreachAllChartTextContinue: ;
+            foreachAllChartTextContinue: ;
             }
 
             var padding = paddings.Max();
@@ -324,6 +324,18 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
             fatal = true;
             return new ImportChartCheckResult(!fatal, errors, 0, false, "", 0, 0);
         }
+    }
+
+    public static float CalcMusicPadding(MaiChart chart, float first)
+    {
+        // TimingChanges 对应的是所有的 {int}
+        var bpm = chart.TimingChanges[0].tempo;
+        // 一小节多长
+        var bar = 60 / bpm * 4;
+
+        // 第一押什么时候出来
+        var firstTiming = chart.NoteCollections[0].time + first;
+        return bar - firstTiming;
     }
 
     public record ImportChartResult(IEnumerable<ImportChartMessage> Errors, bool Fatal);
@@ -345,8 +357,16 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
 
     [HttpPost]
     // 创建完 Music 后调用
-    public ImportChartResult ImportChart([FromForm] int id, IFormFile file, [FromForm] bool ignoreLevelNum, [FromForm] int addVersionId, [FromForm] int genreId, [FromForm] int version, [FromForm] string assetDir,
-        [FromForm] ShiftMethod shift, [FromForm] bool debug = false)
+    public ImportChartResult ImportChart(
+        [FromForm] int id,
+        IFormFile file,
+        [FromForm] bool ignoreLevelNum,
+        [FromForm] int addVersionId,
+        [FromForm] int genreId,
+        [FromForm] int version,
+        [FromForm] string assetDir,
+        [FromForm] ShiftMethod shift,
+        [FromForm] bool debug = false)
     {
         var isUtage = id > 100000;
         var errors = new List<ImportChartMessage>();
@@ -376,7 +396,7 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
         // Mai 的歌曲是从两帧后开始播放的
         first -= 1 / 30f;
 
-        var paddings = allCharts.Values.Select(chart => Converter.CalcMusicPadding(chart.simaiSharpChart, first)).ToList();
+        var paddings = allCharts.Values.Select(chart => CalcMusicPadding(chart.simaiSharpChart, first)).ToList();
         // 音频前面被增加了多少
         var audioPadding = paddings.Max(); // bar - firstTiming = bar - 谱面前面休止符的时间 - &first
         var shouldAddBar = false;
@@ -409,7 +429,7 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
             // 宴会场只导入第一个谱面
             if (isUtage && music.Charts[0].Enable) break;
 
-            // var levelPadding = Converter.CalcMusicPadding(chart, first);
+            // var levelPadding = CalcMusicPadding(chart, first);
             var bpm = chart.simaiSharpChart.TimingChanges[0].tempo;
             music.Bpm = bpm;
             // 一个小节多少秒
@@ -471,7 +491,7 @@ public partial class ImportChartController(StaticSettings settings, ILogger<Stat
             }
 
             float.TryParse(levelNumStr, out var levelNum);
-            targetChart.LevelId = MusicXmlConverter.GetLevelId((int)(levelNum * 10));
+            targetChart.LevelId = MaiUtils.GetLevelId((int)(levelNum * 10));
             // 忽略定数
             if (!ignoreLevelNum)
             {

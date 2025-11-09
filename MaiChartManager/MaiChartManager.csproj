@@ -43,19 +43,25 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\AquaMai\AquaMai.Config.HeadlessLoader\AquaMai.Config.HeadlessLoader.csproj"/>
-    <ProjectReference Include="..\Sitreamai\Sitreamai.csproj"/>
+      <ProjectReference Include="..\MaiLib\MaiLib.csproj"/>
+      <ProjectReference Include="..\SimaiSharp\SimaiSharp\SimaiSharp.csproj"/>
     <ProjectReference Include="..\SonicAudioTools\Source\SonicAudioLib\SonicAudioLib.csproj"/>
     <ProjectReference Include="..\XV2-Tools\LB_Common\LB_Common.csproj"/>
+      <ProjectReference Include="..\XV2-Tools\Xv2CoreLib\Xv2CoreLib.csproj"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="DesktopBridge.Helpers" Version="1.2.2"/>
     <PackageReference Include="idunno.Authentication.Basic" Version="2.4.0"/>
+      <PackageReference Include="LibNMeCab" Version="0.10.2"/>
+      <PackageReference Include="LibNMeCab.IpaDicBin" Version="0.10.0"/>
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8"/>
       <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8"/>
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.8"/>
       <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0"/>
       <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3405.78"/>
+      <PackageReference Include="NAudio" Version="2.2.1"/>
     <PackageReference Include="NAudio.Lame" Version="2.1.0"/>
+      <PackageReference Include="NAudio.Vorbis" Version="1.5.0"/>
       <PackageReference Include="OSVersionExt" Version="3.0.0"/>
     <PackageReference Include="Pluralsight.Crypto" Version="1.1.0"/>
     <PackageReference Include="pythonnet" Version="3.0.5"/>
@@ -71,6 +77,7 @@
     <PackageReference Include="WinBlur" Version="1.0.0"/>
       <PackageReference Include="Xabe.FFmpeg" Version="6.0.2"/>
       <PackageReference Include="YamlDotNet" Version="16.3.0"/>
+      <PackageReference Include="YAXLib" Version="2.15.0"/>
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Launcher.cs">
@@ -159,5 +166,11 @@
       <EmbeddedResource Update="Locale.zh-hant.resx">
           <DependentUpon>Locale.resx</DependentUpon>
       </EmbeddedResource>
+      <None Include="Resources\nopreview.acb">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Include="Resources\template.acb">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
   </ItemGroup>
 </Project>

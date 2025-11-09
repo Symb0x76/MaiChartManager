@@ -4,7 +4,7 @@ using MaiChartManager.Models;
 using MaiChartManager.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic.FileIO;
-using Sitreamai.Models;
+using MusicXml = MaiChartManager.Models.MusicXml;
 
 namespace MaiChartManager.Controllers.Music;
 
