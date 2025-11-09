@@ -148,6 +148,7 @@ export interface GetAssetDirTxtValueRequest {
 export interface GetAssetsDirsResult {
   dirName?: string | null;
   subFiles?: string[] | null;
+  version?: string | null;
 }
 
 export enum HardwareAccelerationStatus {
@@ -927,46 +928,14 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags ChartPreview
-     * @name 1
-     * @request GET:/MaiChartManagerServlet/ChartPreviewApi/{assetDir}/{id}/{level}/Maidata/1
+     * @name ChartPreview
+     * @request GET:/MaiChartManagerServlet/ChartPreviewApi/{assetDir}/{id}/{level}
      */
-    1: (id: number, level: number, assetDir: string, params: RequestParams = {}) =>
+    ChartPreview: (id: number, level: number, assetDir: string, params: RequestParams = {}) =>
       this.request<string, any>({
-        path: `/MaiChartManagerServlet/ChartPreviewApi/${assetDir}/${id}/${level}/Maidata/1`,
+        path: `/MaiChartManagerServlet/ChartPreviewApi/${assetDir}/${id}/${level}`,
         method: "GET",
         format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags ChartPreview
-     * @name 12
-     * @request GET:/MaiChartManagerServlet/ChartPreviewApi/{assetDir}/{id}/{level}/Track/1
-     * @originalName 1
-     * @duplicate
-     */
-    12: (id: number, level: number, assetDir: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/ChartPreviewApi/${assetDir}/${id}/${level}/Track/1`,
-        method: "GET",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags ChartPreview
-     * @name 13
-     * @request GET:/MaiChartManagerServlet/ChartPreviewApi/{assetDir}/{id}/{level}/ImageFull/1
-     * @originalName 1
-     * @duplicate
-     */
-    13: (id: number, level: number, assetDir: string, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/ChartPreviewApi/${assetDir}/${id}/${level}/ImageFull/1`,
-        method: "GET",
         ...params,
       }),
 

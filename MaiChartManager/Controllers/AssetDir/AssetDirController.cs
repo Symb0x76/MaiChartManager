@@ -23,12 +23,61 @@ public class AssetDirController(StaticSettings settings, ILogger<AssetDirControl
         FileSystem.DeleteDirectory(Path.Combine(StaticSettings.StreamingAssets, dir), UIOption.AllDialogs, RecycleOption.SendToRecycleBin);
     }
 
-    public record GetAssetsDirsResult(string DirName, IEnumerable<string> SubFiles);
+    public record GetAssetsDirsResult(string DirName, IEnumerable<string> SubFiles, string Version);
+
+    [NonAction]
+    public string VersionDisplay(int major, int minor, int release)
+    {
+        var baseVersion = $"{major}.{minor}";
+        if (release != 0)
+        {
+            baseVersion += "-" + ReleaseToLetters(release);
+        }
+        return baseVersion;
+    }
+
+    [NonAction]
+    private string ReleaseToLetters(int release)
+    {
+        var result = "";
+        while (release > 0)
+        {
+            release--;
+            result = (char)('A' + release % 26) + result;
+            release /= 26;
+        }
+        return result;
+    }
 
     [HttpGet]
     public IEnumerable<GetAssetsDirsResult> GetAssetsDirs()
     {
-        return StaticSettings.AssetsDirs.Select(path => new GetAssetsDirsResult(path, Directory.EnumerateFiles(Path.Combine(StaticSettings.StreamingAssets, path)).Select(Path.GetFileName)!));
+        foreach (var path in StaticSettings.AssetsDirs)
+        {
+            var version = "";
+            var dataConfig = Path.Combine(StaticSettings.StreamingAssets, path, "DataConfig.xml");
+            if (System.IO.File.Exists(dataConfig))
+            {
+                try
+                {
+                    var doc = new System.Xml.XmlDocument();
+                    doc.Load(dataConfig);
+                    var versionNode = doc.SelectSingleNode("/DataConfig/version");
+                    if (versionNode is not null)
+                    {
+                        var major = int.Parse(versionNode.SelectSingleNode("major")!.InnerText);
+                        var minor = int.Parse(versionNode.SelectSingleNode("minor")!.InnerText);
+                        var release = int.Parse(versionNode.SelectSingleNode("release")!.InnerText);
+                        version = VersionDisplay(major, minor, release);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Failed to read version from {dataConfig}", dataConfig);
+                }
+            }
+            yield return new GetAssetsDirsResult(path, Directory.EnumerateFiles(Path.Combine(StaticSettings.StreamingAssets, path)).Select(Path.GetFileName)!, version);
+        }
     }
 
     public record GetAssetDirTxtValueRequest(string DirName, string FileName);

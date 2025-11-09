@@ -15,8 +15,11 @@ export default defineComponent({
     const { t } = useI18n();
 
     return () => <div class="grid cols-[10em_1fr_9em_6em_14em] items-center gap-5 m-x">
-      {props.dir.dirName}
-      <div/>
+      <div>
+        {props.dir.dirName}
+        <span class="op-70">{props.dir.version ? ` (Ver.${props.dir.version})` : ''}</span>
+      </div>
+      <div />
       <div>
         {
           props.dir.subFiles!.some(it => it === 'DataConfig.xml') ?
