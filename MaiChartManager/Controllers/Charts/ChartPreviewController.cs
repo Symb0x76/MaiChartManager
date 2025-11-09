@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MaiChartManager.Controllers.Charts;
 
 [ApiController]
-[Route("MaiChartManagerServlet/[controller]Api/{assetDir}/{id:int}/{level:int}/[action]/1")]
+[Route("MaiChartManagerServlet/[controller]Api/{assetDir}/{id:int}/{level:int}")]
 public class ChartPreviewController(StaticSettings settings, ILogger<StaticSettings> logger) : ControllerBase
 {
     [HttpGet]
@@ -35,19 +35,5 @@ public class ChartPreviewController(StaticSettings settings, ILogger<StaticSetti
                 &lv_1=1
                 &inote_1={simai}
                 """;
-    }
-
-    [NoCache]
-    [HttpGet]
-    public ActionResult Track(int id, int level, string assetDir)
-    {
-        return RedirectToAction("GetMusicWav", "CueConvert", new { id, assetDir });
-    }
-
-    [NoCache]
-    [HttpGet]
-    public ActionResult ImageFull(int id, int level, string assetDir)
-    {
-        return RedirectToAction("GetJacket", "Music", new { id, assetDir });
     }
 }

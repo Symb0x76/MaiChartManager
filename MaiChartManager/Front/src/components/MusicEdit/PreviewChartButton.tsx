@@ -1,10 +1,10 @@
 import { defineComponent, PropType, ref, watch } from "vue";
 import UnityWebgl from "unity-webgl";
 // 神奇，ASP.NET 放一个 .data 的文件在 wwwroot 里，就会 404。其他后缀就没有问题
-import dataUrl from '@/assets/majdata-wasm/Build.bin?url';
-import frameworkUrl from '@/assets/majdata-wasm/Build.framework.js?url';
-import codeUrl from '@/assets/majdata-wasm/Build.wasm?url';
-import loaderUrl from '@/assets/majdata-wasm/Build.loader.js?url';
+import dataUrl from './majdata-wasm/Build.bin?url';
+import frameworkUrl from './majdata-wasm/Build.framework.js?url';
+import codeUrl from './majdata-wasm/Build.wasm?url';
+import loaderUrl from './majdata-wasm/Build.loader.js?url';
 import { NButton, NFlex, NInputNumber, NModal } from "naive-ui";
 import UnityVue from 'unity-webgl/vue'
 import { selectedADir } from "@/store/refs";
@@ -28,8 +28,14 @@ export default defineComponent({
     unityContext.on("mounted", () => {
       console.log("Unity mounted")
       setTimeout(() => {
-        unityContext.send("HandleJSMessages", "ReceiveMessage", `jsnmsl\n${getUrl(`ChartPreviewApi/${selectedADir.value}/${props.songId}/${props.level}`)}\n1\nlv0`)
-      }, 3000)
+        unityContext.send("HandleJSMessages", "ReceiveMessage", [
+          getUrl(`ChartPreviewApi/${selectedADir.value}/${props.songId}/${props.level}`),
+          getUrl(`GetMusicWavApi/${selectedADir.value}/${props.songId}`),
+          getUrl(`GetJacketApi/${selectedADir.value}/${props.songId}`),
+          '',
+          'lv0'
+        ].join('\n'))
+      }, 500)
     })
 
     return () => <NButton secondary onClick={() => show.value = true}>
