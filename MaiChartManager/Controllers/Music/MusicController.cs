@@ -191,4 +191,18 @@ public class MusicController(StaticSettings settings, ILogger<MusicController> l
             Process.Start("explorer.exe", $"/select,\"{music.FilePath}\"");
         }
     }
+
+    [HttpPost]
+    public void RequestOpenXml(int id, string assetDir)
+    {
+        var music = settings.GetMusic(id, assetDir);
+        if (music != null)
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = music.FilePath,
+                UseShellExecute = true
+            });
+        }
+    }
 }

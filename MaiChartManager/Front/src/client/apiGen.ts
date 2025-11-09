@@ -252,6 +252,8 @@ export interface MusicXmlWithABJacket {
   version?: number;
   /** @format float */
   bpm?: number;
+  /** @format int32 */
+  subLockType?: number;
   disable?: boolean;
   longMusic?: boolean;
   charts?: Chart[] | null;
@@ -1722,6 +1724,20 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     RequestOpenExplorer: (id: number, assetDir: string, params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/MaiChartManagerServlet/RequestOpenExplorerApi/${assetDir}/${id}`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Music
+     * @name RequestOpenXml
+     * @request POST:/MaiChartManagerServlet/RequestOpenXmlApi/{assetDir}/{id}
+     */
+    RequestOpenXml: (id: number, assetDir: string, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/RequestOpenXmlApi/${assetDir}/${id}`,
         method: "POST",
         ...params,
       }),

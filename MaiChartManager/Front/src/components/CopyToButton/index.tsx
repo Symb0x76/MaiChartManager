@@ -16,6 +16,7 @@ enum DROPDOWN_OPTIONS {
   exportMaidataIgnoreVideo,
   exportMaiDataZip,
   exportMaiDataZipIgnoreVideo,
+  editXml,
 }
 
 export default defineComponent({
@@ -54,6 +55,10 @@ export default defineComponent({
       {
         label: t('copy.showInExplorer'),
         key: DROPDOWN_OPTIONS.showExplorer,
+      },
+      {
+        label: t('copy.editXml'),
+        key: DROPDOWN_OPTIONS.editXml,
       }
     ])
 
@@ -72,6 +77,9 @@ export default defineComponent({
         case DROPDOWN_OPTIONS.exportMaidata:
         case DROPDOWN_OPTIONS.exportMaidataIgnoreVideo:
           copy(key);
+          break;
+        case DROPDOWN_OPTIONS.editXml:
+          api.RequestOpenXml(selectMusicId.value, selectedADir.value);
           break;
       }
     }

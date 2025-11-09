@@ -117,7 +117,9 @@ music:
     audioPreviewSelectRegion: 選區
     includeB35: 計入 B35
     includeB15: 計入 B15
-    versionHint: 如果遊戲版本是 1.{gameVersion} 的話，這裡的數字大於等於 {b15ver} 就會讓歌出現在 B15 裡面，否則就會出現在 B35 裡面。這個值還會控制按上線時間排序時的順序
+    versionHint: >-
+      如果遊戲版本是 1.{gameVersion} 的話，這裡的數字大於等於 {b15ver} 就會讓歌出現在 B15 裡面，否則就會出現在 B35
+      裡面。這個值還會控制按上線時間排序時的順序
     idConflictWarning: 以下目錄中存在衝突的 ID
   batch:
     title: 批次操作
@@ -295,7 +297,7 @@ mod:
     applyPresetToGlobal: 套用預設到全域
     settingsFor: '{area} 的靈敏度設定'
     applyToGlobal: 套用到全域
-    applyToArea: '套用到 {area} 區域'
+    applyToArea: 套用到 {area} 區域
     selectAreaHint: 在左側選擇區域後，可以在這裡進行靈敏度微調
     helpText: |-
       在 Test 模式下調整的靈敏度不是線性的
@@ -305,8 +307,8 @@ mod:
       Test 裡的檔位更高，這裡的數字越小，對於官機來說，靈敏度更大
       而 ADX 的靈敏度是反的，所以對於 ADX，這裡的數字越大，靈敏度越大
   keyMap:
-    button1P: '1P 按鍵 {index}'
-    button2P: '2P 按鍵 {index}'
+    button1P: 1P 按鍵 {index}
+    button2P: 2P 按鍵 {index}
     select1P: 1P 選擇鍵
     select2P: 2P 選擇鍵
   judgeAccuracyInfo:
@@ -376,6 +378,7 @@ copy:
   idTypeChangeWarningTitle: 繼續的話可能會改變樂曲屬性
   idTypeChangeWarning: 比如說 DX 和標準樂譜、宴會場之類。要繼續嗎？
   changeIdError: 修改 ID 時出現錯誤
+  editXml: 編輯 XML
 purchase:
   title: 贊助版功能
   storePurchase: Store 購買
