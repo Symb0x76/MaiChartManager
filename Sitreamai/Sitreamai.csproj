@@ -21,6 +21,8 @@
     <OutputPath>bin\x64\Debug\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+      <PackageReference Include="LibNMeCab" Version="0.10.2"/>
+      <PackageReference Include="LibNMeCab.IpaDicBin" Version="0.10.0"/>
       <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8"/>
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.8"/>
     <PackageReference Include="NAudio" Version="2.2.1" />

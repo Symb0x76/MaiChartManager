@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Xml;
-using Microsoft.VisualBasic.FileIO;
+using NMeCab.Specialized;
 
 namespace Sitreamai.Models;
 
-public class MusicXml
+public partial class MusicXml
 {
     protected XmlDocument xmlDoc;
     public string FilePath { get; set; }
@@ -241,8 +244,100 @@ public class MusicXml
             RootNode.SelectSingleNode("name/str").InnerText = value;
             RootNode.SelectSingleNode("movieName/str").InnerText = value;
             RootNode.SelectSingleNode("cueName/str").InnerText = value;
-            RootNode.SelectSingleNode("sortName").InnerText = value;
+            RootNode.SelectSingleNode("sortName").InnerText = ConvertSortName(value);
         }
+    }
+
+    [GeneratedRegex(@"^\[.*?\]")]
+    private static partial Regex UtageKanjiRegex();
+
+    // sortname只应包含数字、大写英文、片假名
+    private string ConvertSortName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return string.Empty;
+
+        var result = new StringBuilder();
+
+        var cleanedName = UtageKanjiRegex().Replace(name, "");
+
+        try
+        {
+            using var tagger = MeCabIpaDicTagger.Create();
+            var nodes = tagger.Parse(cleanedName);
+
+            foreach (var node in nodes)
+            {
+                var surface = node.Surface;
+
+                if (!string.IsNullOrEmpty(surface))
+                {
+                    var katakanaReading = node.Reading;
+
+                    // 检查是否包含汉字
+                    bool hasKanji = surface.Any(c => c >= 0x4E00 && c <= 0x9FFF);
+
+                    if (hasKanji && !string.IsNullOrEmpty(katakanaReading))
+                    {
+                        // 如果有汉字且有读音，使用读音
+                        result.Append(katakanaReading);
+                    }
+                    else
+                    {
+                        // 否则逐字符处理
+                        foreach (char c in surface)
+                        {
+                            // 数字直接保留
+                            if (char.IsDigit(c))
+                            {
+                                result.Append(c);
+                            }
+                            // 英文字母转大写
+                            else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+                            {
+                                result.Append(char.ToUpper(c));
+                            }
+                            // 平假名转片假名
+                            else if (c >= 0x3041 && c <= 0x3096)
+                            {
+                                result.Append((char)(c + 0x60));
+                            }
+                            // 片假名保持
+                            else if (c >= 0x30A0 && c <= 0x30FF)
+                            {
+                                result.Append(c);
+                            }
+                            // 其他字符（符号、空格等）忽略
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // 如果 MeCab 解析失败，退化到简单的字符转换
+            foreach (char c in cleanedName)
+            {
+                if (char.IsDigit(c))
+                {
+                    result.Append(c);
+                }
+                else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+                {
+                    result.Append(char.ToUpper(c));
+                }
+                else if (c >= 0x3041 && c <= 0x3096)
+                {
+                    result.Append((char)(c + 0x60));
+                }
+                else if (c >= 0x30A0 && c <= 0x30FF)
+                {
+                    result.Append(c);
+                }
+            }
+        }
+
+        return result.ToString();
     }
 
     public int GenreId
