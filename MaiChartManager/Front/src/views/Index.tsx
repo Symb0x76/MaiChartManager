@@ -15,6 +15,7 @@ import CopyToButton from "@/components/CopyToButton";
 import TransitionOpacity from '@/components/TransitionOpacity';
 import Tools from '@/components/Tools';
 import { useI18n } from 'vue-i18n';
+import DragDropDispatcher, { mainDivRef } from '@/components/DragDropDispatcher';
 
 export default defineComponent({
   setup() {
@@ -62,7 +63,8 @@ export default defineComponent({
 
     const mobileShowMenu = ref(false);
 
-    return () => <NFlex justify="center">
+    return () => <div class="flex justify-center" ref={mainDivRef}>
+      <DragDropDispatcher />
       <div class="grid cols-[40em_1fr] w-[min(100rem,100%)] max-[1440px]:cols-1">
         <div class={[
           "p-xy h-100dvh",
@@ -103,6 +105,6 @@ export default defineComponent({
           </NScrollbar>
         </NFlex>
       </div>
-    </NFlex>;
+    </div>;
   },
 });

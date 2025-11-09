@@ -116,7 +116,7 @@ export default defineComponent({
             <span class="c-red-6">{t('mod.notInstalled')}</span>}
           <ModInstallDropdown updateAquaMaiConfig={updateAquaMaiConfig}/>
           <span class="max-[1060px]:hidden">{t('mod.installedVersion')}:</span>
-          <span class="max-[450px]:hidden">v{modInfo.value.aquaMaiVersion}</span>
+          <span class="max-[450px]:hidden">{modInfo.value.aquaMaiVersion !=='N/A' && 'v'}{modInfo.value.aquaMaiVersion}</span>
           <span class="max-[1060px]:hidden">{t('mod.availableVersion')}:</span>
           <span class={[shouldShowUpdate.value && "c-orange", "max-[1060px]:hidden"]}>{latestVersion.value.version}</span>
           <NButton secondary onClick={() => api.KillGameProcess()}>
