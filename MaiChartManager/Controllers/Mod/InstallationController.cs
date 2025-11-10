@@ -1,0 +1,214 @@
+﻿using System.Diagnostics;
+using System.IO.Compression;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic.FileIO;
+
+namespace MaiChartManager.Controllers.Mod;
+
+[ApiController]
+[Route("MaiChartManagerServlet/[action]Api")]
+public class InstallationController(StaticSettings settings, ILogger<InstallationController> logger) : ControllerBase
+{
+    private static string judgeDisplay4BPath = Path.Combine(StaticSettings.exeDir, "Resources", "JudgeDisplay4B");
+
+    [HttpGet]
+    public bool IsMelonInstalled()
+    {
+        return System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, "version.dll"))
+            && Directory.Exists(Path.Combine(StaticSettings.GamePath, "MelonLoader"));
+    }
+
+    [HttpGet]
+    public bool IsAquaMaiInstalled()
+    {
+        return System.IO.File.Exists(ModPaths.AquaMaiDllInstalledPath);
+    }
+
+    public record GameModInfo(
+        bool MelonLoaderInstalled,
+        bool AquaMaiInstalled,
+        string AquaMaiVersion,
+        string BundledAquaMaiVersion,
+        bool IsJudgeDisplay4BInstalled,
+        bool IsHidConflictExist
+    );
+
+    private static readonly string[] HidModPaths = [@"Mods\Mai2InputMod.dll", @"Mods\hid_input_lib.dll", "hid_input_lib.dll", "mai2io.dll"];
+
+    [HttpGet]
+    public GameModInfo GetGameModInfo()
+    {
+        var aquaMaiInstalled = IsAquaMaiInstalled();
+        var aquaMaiVersion = "N/A";
+        if (aquaMaiInstalled)
+        {
+            aquaMaiVersion = FileVersionInfo.GetVersionInfo(ModPaths.AquaMaiDllInstalledPath).ProductVersion ?? "N/A";
+        }
+
+        var aquaMaiBuiltinVersion = FileVersionInfo.GetVersionInfo(ModPaths.AquaMaiDllBuiltinPath).ProductVersion;
+
+        return new GameModInfo(IsMelonInstalled(), aquaMaiInstalled, aquaMaiVersion, aquaMaiBuiltinVersion!, GetIsJudgeDisplay4BInstalled(), GetIsHidConflictExist());
+    }
+
+    [NonAction]
+    private static bool GetIsJudgeDisplay4BInstalled()
+    {
+        if (!Directory.Exists(StaticSettings.SkinAssetsDir)) return false;
+
+        var filesShouldBeInstalled = Directory.EnumerateFiles(judgeDisplay4BPath);
+        return filesShouldBeInstalled.Select(file => Path.Combine(StaticSettings.SkinAssetsDir, Path.GetFileName(file))).All(System.IO.File.Exists);
+    }
+
+    [NonAction]
+    private static bool GetIsHidConflictExist()
+    {
+        foreach (var mod in HidModPaths)
+        {
+            if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, mod)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    [HttpPost]
+    public void DeleteHidConflict()
+    {
+        foreach (var mod in HidModPaths)
+        {
+            if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, mod)))
+            {
+                FileSystem.DeleteFile(Path.Combine(StaticSettings.GamePath, mod), UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+            }
+        }
+    }
+
+    [HttpPost]
+    public void InstallJudgeDisplay4B()
+    {
+        Directory.CreateDirectory(StaticSettings.SkinAssetsDir);
+
+        foreach (var file in Directory.EnumerateFiles(judgeDisplay4BPath))
+        {
+            System.IO.File.Copy(file, Path.Combine(StaticSettings.SkinAssetsDir, Path.GetFileName(file)), true);
+        }
+    }
+
+    [HttpPost]
+    public void InstallMelonLoader()
+    {
+        if (IsMelonInstalled())
+        {
+            logger.LogInformation("MelonLoader is already installed.");
+            return;
+        }
+
+        using var s = System.IO.File.OpenRead(Path.Combine(StaticSettings.exeDir, "MelonLoader.x64.zip"));
+        var zip = new ZipArchive(s, ZipArchiveMode.Read);
+        foreach (var entry in zip.Entries)
+        {
+            if (entry.Name == "NOTICE.txt")
+                continue;
+
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(StaticSettings.GamePath, entry.FullName)));
+            entry.ExtractToFile(Path.Combine(StaticSettings.GamePath, entry.FullName), true);
+        }
+    }
+
+    [HttpPost]
+    public void InstallAquaMai()
+    {
+        var src = Path.Combine(StaticSettings.exeDir, "AquaMai.dll");
+        var dest = Path.Combine(StaticSettings.GamePath, @"Mods\AquaMai.dll");
+        Directory.CreateDirectory(Path.GetDirectoryName(dest));
+        FileSystem.CopyFile(src, dest, true);
+    }
+
+    [HttpPost]
+    public void OpenJudgeAccuracyInfoPdf()
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = Path.Combine(StaticSettings.exeDir, "Judge Accuracy Info 功能简介.pdf"),
+            UseShellExecute = true
+        });
+    }
+
+    private const string CI_KEY =
+        "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBmXJFYcg9YMi5i7tcPxc29Lxb/8OwGBUA5zi0cN4Apvp/J+zBaeY7EB9clDcRh8sjXRgSc7/JXYrUn8LDPHoCuuMB2W6HAxV+NtQamITaUNJD89LM0NpubbTUeKYjUThXpr/otDWq8kk5hvwkk62ByqG/2EXnH6WhlrI81I9H4l5adi4=";
+
+    private const string RELEASE_KEY =
+        "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBysJuWwvK1gK0Da9fnQgaiJpXH495QGEdGW/l3fj9g5X9v7TZCBPetUM7zDbMyMxLL+G4R1KQYvxcfKyvJz0h/woBkQ0nznNTCrkdBiB0xsNQrCBf8DDAJVw9w8X01rQeSxcnOZi2KBzixeMZZEqWnGtU/f3kDThWmRPaZ8Ptz8KynUU=";
+
+    [NonAction]
+    private static bool VerifyBinary(byte[] data, string sign, string key)
+    {
+        byte[] signature = Convert.FromBase64String(sign);
+        byte[] publicKey = Convert.FromBase64String(key);
+
+        using var ecdsa = ECDsa.Create();
+        ecdsa.ImportSubjectPublicKeyInfo(publicKey, out _);
+        return ecdsa.VerifyData(data, signature, HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence);
+    }
+
+    public record InstallAquaMaiOnlineDto(string[] Urls, string Type, string Sign);
+
+    [HttpPost]
+    public async Task InstallAquaMaiOnline(InstallAquaMaiOnlineDto req)
+    {
+        var key = req.Type switch
+        {
+            "ci" => CI_KEY,
+            "release" => RELEASE_KEY,
+            _ => throw new ArgumentException("Invalid type", nameof(req.Type)),
+        };
+        // Download from url
+        using var client = new HttpClient();
+        client.Timeout = TimeSpan.FromSeconds(15);
+        Exception? lastException = null;
+        foreach (var url in req.Urls)
+        {
+            byte[] data;
+            try
+            {
+                data = await client.GetByteArrayAsync(url);
+
+                if (!VerifyBinary(data, req.Sign, key))
+                {
+                    throw new InvalidOperationException("Invalid signature");
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to download AquaMai from {Url}", url);
+                lastException = e;
+                continue;
+            }
+            // Save to Mods folder
+            var dest = Path.Combine(StaticSettings.GamePath, @"Mods\AquaMai.dll");
+            Directory.CreateDirectory(Path.GetDirectoryName(dest));
+            await System.IO.File.WriteAllBytesAsync(dest, data);
+            return;
+        }
+        throw new InvalidOperationException("Failed to download AquaMai from all urls", lastException);
+    }
+
+    [HttpPost]
+    public void KillGameProcess()
+    {
+        foreach (var process in Process.GetProcessesByName("Sinmai"))
+        {
+            try
+            {
+                process.Kill();
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Failed to kill Sinmai process with id {Id}", process.Id);
+            }
+        }
+    }
+}

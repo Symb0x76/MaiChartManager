@@ -1,7 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using System.Xml;
 using AquaMai.Config.Interfaces;
-using MaiChartManager.Controllers;
 using MaiChartManager.Models;
 using MaiChartManager.Utils;
 
@@ -290,7 +289,7 @@ public partial class StaticSettings
         {
             try
             {
-                config = ModController.GetCurrentAquaMaiConfig();
+                config = Controllers.Mod.ConfigurationController.GetCurrentAquaMaiConfig();
             }
             catch (Exception e)
             {
