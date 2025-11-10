@@ -9,6 +9,7 @@ import _ from "lodash";
 import ModInstallDropdown from "@/components/ModManager/ModInstallDropdown";
 import styles from "./styles.module.sass";
 import { useI18n } from 'vue-i18n';
+import { debounce } from 'perfect-debounce';
 
 export default defineComponent({
   props: {
@@ -27,13 +28,17 @@ export default defineComponent({
     const installingMelonLoader = ref(false)
     const message = useMessage();
     const { t } = useI18n();
+    const isConfigCorrupted = ref(false);
+    const errTitle = ref('');
 
-    const updateAquaMaiConfig = async () => {
+    const updateAquaMaiConfig = async (forceDefault = false) => {
       try {
         configReadErr.value = ''
         configReadErrTitle.value = ''
-        config.value = (await api.GetAquaMaiConfig()).data;
+        config.value = (await api.GetAquaMaiConfig({forceDefault})).data;
+        isConfigCorrupted.value = false;
       } catch (err: any) {
+        errTitle.value = t('mod.needInstallOrUpdate');
         if (err instanceof Response && !err.bodyUsed) {
             const text = await err.text();
             try {
@@ -46,6 +51,12 @@ export default defineComponent({
               }
               if(configReadErrTitle.value === 'System.Reflection.TargetInvocationException' && compareVersions(modInfo.value?.aquaMaiVersion || '0.0.0', '1.6.0') < 0) {
                 configReadErr.value = t('mod.versionTooLow');
+              }
+              if(configReadErrTitle.value.includes('ConfigCorruptedException')) {
+                isConfigCorrupted.value = true;
+              }
+              if(configReadErr.value.includes('Could not migrate the config')) {
+                errTitle.value = t('mod.configVersionHigher');
               }
               return
             } catch {
@@ -86,7 +97,7 @@ export default defineComponent({
         globalCapture(e, t('mod.saveConfigFailed'))
       }
     }
-    const save = _.debounce(saveImpl, 2000);
+    const save = debounce(saveImpl, 2000);
 
     watch(() => config.value, async (val) => {
       if (configReadErr.value) return
@@ -97,38 +108,65 @@ export default defineComponent({
       }
     }, { deep: true })
 
+    const resetToDefault = async () => {
+      await updateAquaMaiConfig(true);
+      await saveImpl();
+    }
 
-    return () => <NModal
-      preset="card"
-      class={["w-[min(99dvw,100em)]", styles.modal]}
-      title={t('mod.title')}
-      v-model:show={show.value}
-    >
-      {!!modInfo.value && <NFlex vertical>
-        <NFlex align="center">
-          <span class="max-[1060px]:hidden">MelonLoader:</span>
-          {modInfo.value.melonLoaderInstalled ? <span class="c-green-6 max-[1060px]:hidden">{t('mod.installed')}</span> : <span class="c-red-6">{t('mod.notInstalled')}</span>}
-          {!modInfo.value.melonLoaderInstalled && <NButton secondary loading={installingMelonLoader.value} onClick={installMelonLoader}>{t('mod.install')}</NButton>}
-          <div class={["w-8", "max-[1060px]:hidden"]}/>
-          <span class="max-[1060px]:hidden">AquaMai:</span>
-          {modInfo.value.aquaMaiInstalled ?
-            !shouldShowUpdate.value ? <span class="c-green-6 max-[1060px]:hidden">{t('mod.installed')}</span> : <span class="c-orange">{t('mod.updateAvailable')}</span> :
-            <span class="c-red-6">{t('mod.notInstalled')}</span>}
-          <ModInstallDropdown updateAquaMaiConfig={updateAquaMaiConfig}/>
-          <span class="max-[1060px]:hidden">{t('mod.installedVersion')}:</span>
-          <span class="max-[450px]:hidden">{modInfo.value.aquaMaiVersion !=='N/A' && 'v'}{modInfo.value.aquaMaiVersion}</span>
-          <span class="max-[1060px]:hidden">{t('mod.availableVersion')}:</span>
-          <span class={[shouldShowUpdate.value && "c-orange", "max-[1060px]:hidden"]}>{latestVersion.value.version}</span>
-          <NButton secondary onClick={() => api.KillGameProcess()}>
-            {t('mod.killGameProcess')}
-          </NButton>
+
+    return () => {
+
+      let editorPart = <></>;
+      if (isConfigCorrupted.value) {
+        editorPart = <NFlex vertical justify="center" align="center" class="min-h-100">
+          <div class="text-8">{t('mod.configCorrupted')}</div>
+          <div class="c-gray-5 text-lg">{t('mod.configCorruptedMessage')}</div>
+          <div>
+            <NButton secondary onClick={resetToDefault}>
+              {t('mod.resetToDefault')}
+            </NButton>
+          </div>
         </NFlex>
-        {configReadErr.value ? <NFlex vertical justify="center" align="center" class="min-h-100">
-          <div class="text-8">{t('mod.needInstallOrUpdate')}</div>
+      }
+      else if (configReadErr.value) {
+        editorPart = <NFlex vertical justify="center" align="center" class="min-h-100">
+          <div class="text-8">{errTitle.value}</div>
           <div class="c-gray-5 text-lg">{configReadErr.value}</div>
           <div class="c-gray-4 text-sm">{configReadErrTitle.value}</div>
-        </NFlex> : <AquaMaiConfigurator config={config.value!} useNewSort={true}/>}
-      </NFlex>}
-    </NModal>;
+        </NFlex>
+      }
+      else {
+        editorPart = <AquaMaiConfigurator config={config.value!} useNewSort={true}/>
+      }
+
+      return <NModal
+        preset="card"
+        class={["w-[min(99dvw,100em)]", styles.modal]}
+        title={t('mod.title')}
+        v-model:show={show.value}
+      >
+        {!!modInfo.value && <NFlex vertical>
+          <NFlex align="center">
+            <span class="max-[1060px]:hidden">MelonLoader:</span>
+            {modInfo.value.melonLoaderInstalled ? <span class="c-green-6 max-[1060px]:hidden">{t('mod.installed')}</span> : <span class="c-red-6">{t('mod.notInstalled')}</span>}
+            {!modInfo.value.melonLoaderInstalled && <NButton secondary loading={installingMelonLoader.value} onClick={installMelonLoader}>{t('mod.install')}</NButton>}
+            <div class={["w-8", "max-[1060px]:hidden"]}/>
+            <span class="max-[1060px]:hidden">AquaMai:</span>
+            {modInfo.value.aquaMaiInstalled ?
+              !shouldShowUpdate.value ? <span class="c-green-6 max-[1060px]:hidden">{t('mod.installed')}</span> : <span class="c-orange">{t('mod.updateAvailable')}</span> :
+              <span class="c-red-6">{t('mod.notInstalled')}</span>}
+            <ModInstallDropdown updateAquaMaiConfig={updateAquaMaiConfig}/>
+            <span class="max-[1060px]:hidden">{t('mod.installedVersion')}:</span>
+            <span class="max-[450px]:hidden">{modInfo.value.aquaMaiVersion !=='N/A' && 'v'}{modInfo.value.aquaMaiVersion}</span>
+            <span class="max-[1060px]:hidden">{t('mod.availableVersion')}:</span>
+            <span class={[shouldShowUpdate.value && "c-orange", "max-[1060px]:hidden"]}>{latestVersion.value.version}</span>
+            <NButton secondary onClick={() => api.KillGameProcess()}>
+              {t('mod.killGameProcess')}
+            </NButton>
+          </NFlex>
+          {editorPart}
+        </NFlex>}
+      </NModal>
+    };
   }
 })

@@ -34,6 +34,7 @@
     "lodash": "^4.17.21",
     "naive-ui": "^2.40.1",
     "path-browserify": "^1.0.1",
+    "perfect-debounce": "^2.0.0",
     "posthog-js": "^1.166.1",
     "sass": "^1.79.4",
     "swagger-typescript-api": "^13.0.22",

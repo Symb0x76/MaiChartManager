@@ -287,4 +287,7 @@ If you notice any issues with the conversion result, you can try testing it in A
     <data name="ChartFileNotFound" xml:space="preserve">
       <value>Chart file not exist</value>
     </data>
+    <data name="AquaMaiConfigCorrupted" xml:space="preserve">
+      <value>AquaMai configuration file appears corrupted...</value>
+    </data>
 </root>

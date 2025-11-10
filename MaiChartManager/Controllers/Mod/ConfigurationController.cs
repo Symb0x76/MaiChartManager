@@ -15,6 +15,8 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
 {
     public class UnsupportedConfigApiVersionException() : Exception(Locale.UnsupportedConfigVersion);
 
+    public class ConfigCorruptedException() : Exception(Locale.AquaMaiConfigCorrupted);
+
     public class AquaMaiNotInstalledException() : Exception(Locale.AquaMaiNotInstalled);
 
     [NonAction]
@@ -34,7 +36,7 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
     }
 
     [NonAction]
-    public static IConfig GetCurrentAquaMaiConfig()
+    public static IConfig GetCurrentAquaMaiConfig(bool forceDefault = false)
     {
         if (!System.IO.File.Exists(ModPaths.AquaMaiDllInstalledPath))
         {
@@ -44,26 +46,41 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
         var configInterface = HeadlessConfigLoader.LoadFromPacked(ModPaths.AquaMaiDllInstalledPath);
         var config = configInterface.CreateConfig();
         CheckConfigApiVersion(configInterface);
-        if (System.IO.File.Exists(ModPaths.AquaMaiConfigPath))
+        if (System.IO.File.Exists(ModPaths.AquaMaiConfigPath) && !forceDefault)
         {
-            var view = configInterface.CreateConfigView(System.IO.File.ReadAllText(ModPaths.AquaMaiConfigPath));
-            var migrationManager = configInterface.GetConfigMigrationManager();
-
-            if (migrationManager.GetVersion(view) != migrationManager.LatestVersion)
+            try
             {
-                Console.WriteLine("Migrating AquaMai config from {0} to {1}", migrationManager.GetVersion(view), migrationManager.LatestVersion);
-                view = migrationManager.Migrate(view);
-            }
+                var view = configInterface.CreateConfigView(System.IO.File.ReadAllText(ModPaths.AquaMaiConfigPath));
+                var migrationManager = configInterface.GetConfigMigrationManager();
 
-            var parser = configInterface.GetConfigParser();
-            parser.Parse(config, view);
+                if (migrationManager.GetVersion(view) != migrationManager.LatestVersion)
+                {
+                    Console.WriteLine("Migrating AquaMai config from {0} to {1}", migrationManager.GetVersion(view), migrationManager.LatestVersion);
+                    view = migrationManager.Migrate(view);
+                }
+
+                var parser = configInterface.GetConfigParser();
+                parser.Parse(config, view);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("无法加载 AquaMai 配置");
+                Console.WriteLine(ex);
+                if (ex.Message.Contains("Could not migrate the config"))
+                {
+                    // 这个应该是，AquaMai 未安装或需要更新
+                    throw;
+                }
+                // 这个的提示是 AquaMai 配置文件损坏
+                throw new ConfigCorruptedException();
+            }
         }
 
         return config;
     }
 
     [HttpGet]
-    public AquaMaiConfigDto.ConfigDto GetAquaMaiConfig()
+    public AquaMaiConfigDto.ConfigDto GetAquaMaiConfig(bool forceDefault = false)
     {
         Dictionary<string, string[]>? configSort = null;
         using (var stream = new FileStream(ModPaths.AquaMaiDllInstalledPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -78,7 +95,7 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
                 configSort = deserializer.Deserialize<Dictionary<string, string[]>>(yaml);
             }
         }
-        var config = GetCurrentAquaMaiConfig();
+        var config = GetCurrentAquaMaiConfig(forceDefault);
         return new AquaMaiConfigDto.ConfigDto(
             config.ReflectionManager.Sections.Select(section =>
             {

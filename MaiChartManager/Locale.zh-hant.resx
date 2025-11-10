@@ -279,4 +279,7 @@
     <data name="ChartFileNotFound" xml:space="preserve">
       <value>譜面文件不存在</value>
     </data>
+    <data name="AquaMaiConfigCorrupted" xml:space="preserve">
+      <value>AquaMai 設定檔似乎已經損壞</value>
+    </data>
 </root>

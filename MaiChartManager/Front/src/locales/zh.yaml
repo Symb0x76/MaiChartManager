@@ -323,6 +323,10 @@ mod:
       使用自定义的触摸灵敏度
       这里启用之后 Test 里的设置就不再起作用了，不过还是可以使用 Test 测试（使用测试需要关闭 1P 模式）
       如果你的手台有对应的上位机，建议使用上位机调整
+  configCorrupted: AquaMai 配置文件损坏
+  configCorruptedMessage: 请手动检查 AquaMai.toml 并尝试修复可能的问题
+  resetToDefault: 重置回默认设置
+  configVersionHigher: 配置文件版本高于 AquaMai 版本
 tools:
   title: 工具
   audioConvert: 音频转换（ACB + AWB）

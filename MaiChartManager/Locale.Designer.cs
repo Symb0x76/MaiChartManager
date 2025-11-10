@@ -96,6 +96,15 @@ namespace MaiChartManager {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to AquaMai configuration file appears corrupted....
+        /// </summary>
+        internal static string AquaMaiConfigCorrupted {
+            get {
+                return ResourceManager.GetString("AquaMaiConfigCorrupted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to AquaMai is not installed.
         /// </summary>
         internal static string AquaMaiNotInstalled {

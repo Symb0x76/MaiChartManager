@@ -80,6 +80,9 @@ importers:
       path-browserify:
         specifier: ^1.0.1
         version: 1.0.1
+      perfect-debounce:
+        specifier: ^2.0.0
+        version: 2.0.0
       posthog-js:
         specifier: ^1.166.1
         version: 1.166.1
@@ -1735,6 +1738,9 @@ packages:
 
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
+
+  perfect-debounce@2.0.0:
+    resolution: {integrity: sha512-fkEH/OBiKrqqI/yIgjR92lMfs2K8105zt/VT6+7eTjNwisrsh47CeIED9z58zI7DfKdH3uHAn25ziRZn3kgAow==}
 
   picocolors@1.0.1:
     resolution: {integrity: sha512-anP1Z8qwhkbmu7MFP5iTt+wQKXgwzf7zTyGlcdzabySa9vd0Xt392U0rVmz9poOaBj0uHJKyyo9/upk0HrEQew==}
@@ -3784,6 +3790,8 @@ snapshots:
   pathe@1.1.2: {}
 
   perfect-debounce@1.0.0: {}
+
+  perfect-debounce@2.0.0: {}
 
   picocolors@1.0.1: {}
 

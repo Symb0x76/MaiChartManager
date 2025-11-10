@@ -975,6 +975,44 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
+     * @tags Configuration
+     * @name GetAquaMaiConfig
+     * @request GET:/MaiChartManagerServlet/GetAquaMaiConfigApi
+     */
+    GetAquaMaiConfig: (
+      query?: {
+        /** @default false */
+        forceDefault?: boolean;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<ConfigDto, any>({
+        path: `/MaiChartManagerServlet/GetAquaMaiConfigApi`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Configuration
+     * @name SetAquaMaiConfig
+     * @request PUT:/MaiChartManagerServlet/SetAquaMaiConfigApi
+     */
+    SetAquaMaiConfig: (data: ConfigSaveDto, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/SetAquaMaiConfigApi`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags CueConvert
      * @name GetMusicWav
      * @request GET:/MaiChartManagerServlet/GetMusicWavApi/{assetDir}/{id}
@@ -1195,6 +1233,151 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
+     * @tags Installation
+     * @name IsMelonInstalled
+     * @request GET:/MaiChartManagerServlet/IsMelonInstalledApi
+     */
+    IsMelonInstalled: (params: RequestParams = {}) =>
+      this.request<boolean, any>({
+        path: `/MaiChartManagerServlet/IsMelonInstalledApi`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name IsAquaMaiInstalled
+     * @request GET:/MaiChartManagerServlet/IsAquaMaiInstalledApi
+     */
+    IsAquaMaiInstalled: (params: RequestParams = {}) =>
+      this.request<boolean, any>({
+        path: `/MaiChartManagerServlet/IsAquaMaiInstalledApi`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name GetGameModInfo
+     * @request GET:/MaiChartManagerServlet/GetGameModInfoApi
+     */
+    GetGameModInfo: (params: RequestParams = {}) =>
+      this.request<GameModInfo, any>({
+        path: `/MaiChartManagerServlet/GetGameModInfoApi`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name DeleteHidConflict
+     * @request POST:/MaiChartManagerServlet/DeleteHidConflictApi
+     */
+    DeleteHidConflict: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/DeleteHidConflictApi`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name InstallJudgeDisplay4B
+     * @request POST:/MaiChartManagerServlet/InstallJudgeDisplay4BApi
+     */
+    InstallJudgeDisplay4B: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/InstallJudgeDisplay4BApi`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name InstallMelonLoader
+     * @request POST:/MaiChartManagerServlet/InstallMelonLoaderApi
+     */
+    InstallMelonLoader: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/InstallMelonLoaderApi`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name InstallAquaMai
+     * @request POST:/MaiChartManagerServlet/InstallAquaMaiApi
+     */
+    InstallAquaMai: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/InstallAquaMaiApi`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name OpenJudgeAccuracyInfoPdf
+     * @request POST:/MaiChartManagerServlet/OpenJudgeAccuracyInfoPdfApi
+     */
+    OpenJudgeAccuracyInfoPdf: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/OpenJudgeAccuracyInfoPdfApi`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name InstallAquaMaiOnline
+     * @request POST:/MaiChartManagerServlet/InstallAquaMaiOnlineApi
+     */
+    InstallAquaMaiOnline: (data: InstallAquaMaiOnlineDto, params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/InstallAquaMaiOnlineApi`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name KillGameProcess
+     * @request POST:/MaiChartManagerServlet/KillGameProcessApi
+     */
+    KillGameProcess: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/KillGameProcessApi`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags LocalAssets
      * @name GetLocalAsset
      * @request GET:/MaiChartManagerServlet/GetLocalAssetApi/{fileName}
@@ -1234,182 +1417,6 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         body: data,
         type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name IsMelonInstalled
-     * @request GET:/MaiChartManagerServlet/IsMelonInstalledApi
-     */
-    IsMelonInstalled: (params: RequestParams = {}) =>
-      this.request<boolean, any>({
-        path: `/MaiChartManagerServlet/IsMelonInstalledApi`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name IsAquaMaiInstalled
-     * @request GET:/MaiChartManagerServlet/IsAquaMaiInstalledApi
-     */
-    IsAquaMaiInstalled: (params: RequestParams = {}) =>
-      this.request<boolean, any>({
-        path: `/MaiChartManagerServlet/IsAquaMaiInstalledApi`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name GetGameModInfo
-     * @request GET:/MaiChartManagerServlet/GetGameModInfoApi
-     */
-    GetGameModInfo: (params: RequestParams = {}) =>
-      this.request<GameModInfo, any>({
-        path: `/MaiChartManagerServlet/GetGameModInfoApi`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name DeleteHidConflict
-     * @request POST:/MaiChartManagerServlet/DeleteHidConflictApi
-     */
-    DeleteHidConflict: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/DeleteHidConflictApi`,
-        method: "POST",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name InstallJudgeDisplay4B
-     * @request POST:/MaiChartManagerServlet/InstallJudgeDisplay4BApi
-     */
-    InstallJudgeDisplay4B: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/InstallJudgeDisplay4BApi`,
-        method: "POST",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name GetAquaMaiConfig
-     * @request GET:/MaiChartManagerServlet/GetAquaMaiConfigApi
-     */
-    GetAquaMaiConfig: (params: RequestParams = {}) =>
-      this.request<ConfigDto, any>({
-        path: `/MaiChartManagerServlet/GetAquaMaiConfigApi`,
-        method: "GET",
-        format: "json",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name SetAquaMaiConfig
-     * @request PUT:/MaiChartManagerServlet/SetAquaMaiConfigApi
-     */
-    SetAquaMaiConfig: (data: ConfigSaveDto, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/SetAquaMaiConfigApi`,
-        method: "PUT",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name InstallMelonLoader
-     * @request POST:/MaiChartManagerServlet/InstallMelonLoaderApi
-     */
-    InstallMelonLoader: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/InstallMelonLoaderApi`,
-        method: "POST",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name InstallAquaMai
-     * @request POST:/MaiChartManagerServlet/InstallAquaMaiApi
-     */
-    InstallAquaMai: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/InstallAquaMaiApi`,
-        method: "POST",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name OpenJudgeAccuracyInfoPdf
-     * @request POST:/MaiChartManagerServlet/OpenJudgeAccuracyInfoPdfApi
-     */
-    OpenJudgeAccuracyInfoPdf: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/OpenJudgeAccuracyInfoPdfApi`,
-        method: "POST",
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name InstallAquaMaiOnline
-     * @request POST:/MaiChartManagerServlet/InstallAquaMaiOnlineApi
-     */
-    InstallAquaMaiOnline: (data: InstallAquaMaiOnlineDto, params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/InstallAquaMaiOnlineApi`,
-        method: "POST",
-        body: data,
-        type: ContentType.Json,
-        ...params,
-      }),
-
-    /**
-     * No description
-     *
-     * @tags Mod
-     * @name KillGameProcess
-     * @request POST:/MaiChartManagerServlet/KillGameProcessApi
-     */
-    KillGameProcess: (params: RequestParams = {}) =>
-      this.request<void, any>({
-        path: `/MaiChartManagerServlet/KillGameProcessApi`,
-        method: "POST",
         ...params,
       }),
 
