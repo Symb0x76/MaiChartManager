@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO.Compression;
 using System.Security.Cryptography;
+using MaiChartManager.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic.FileIO;
 
@@ -31,7 +32,8 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
         string AquaMaiVersion,
         string BundledAquaMaiVersion,
         bool IsJudgeDisplay4BInstalled,
-        bool IsHidConflictExist
+        bool IsHidConflictExist,
+        AquaMaiSignatureV2.VerifyResult? Signature
     );
 
     private static readonly string[] HidModPaths = [@"Mods\Mai2InputMod.dll", @"Mods\hid_input_lib.dll", "hid_input_lib.dll", "mai2io.dll"];
@@ -48,7 +50,13 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
 
         var aquaMaiBuiltinVersion = FileVersionInfo.GetVersionInfo(ModPaths.AquaMaiDllBuiltinPath).ProductVersion;
 
-        return new GameModInfo(IsMelonInstalled(), aquaMaiInstalled, aquaMaiVersion, aquaMaiBuiltinVersion!, GetIsJudgeDisplay4BInstalled(), GetIsHidConflictExist());
+        AquaMaiSignatureV2.VerifyResult? sig = null;
+        if (aquaMaiInstalled)
+        {
+            sig = AquaMaiSignatureV2.VerifySignature(System.IO.File.ReadAllBytes(ModPaths.AquaMaiDllInstalledPath));
+        }
+
+        return new GameModInfo(IsMelonInstalled(), aquaMaiInstalled, aquaMaiVersion, aquaMaiBuiltinVersion!, GetIsJudgeDisplay4BInstalled(), GetIsHidConflictExist(), sig);
     }
 
     [NonAction]

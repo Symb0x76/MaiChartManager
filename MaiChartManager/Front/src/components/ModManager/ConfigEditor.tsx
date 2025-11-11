@@ -10,6 +10,7 @@ import ModInstallDropdown from "@/components/ModManager/ModInstallDropdown";
 import styles from "./styles.module.sass";
 import { useI18n } from 'vue-i18n';
 import { debounce } from 'perfect-debounce';
+import AquaMaiSignatureStatusDisplay from "./AquaMaiSignatureStatusDisplay";
 
 export default defineComponent({
   props: {
@@ -158,6 +159,7 @@ export default defineComponent({
             <ModInstallDropdown updateAquaMaiConfig={updateAquaMaiConfig}/>
             <span class="max-[1060px]:hidden">{t('mod.installedVersion')}:</span>
             <span class="max-[450px]:hidden">{modInfo.value.aquaMaiVersion !=='N/A' && 'v'}{modInfo.value.aquaMaiVersion}</span>
+            <AquaMaiSignatureStatusDisplay/>
             <span class="max-[1060px]:hidden">{t('mod.availableVersion')}:</span>
             <span class={[shouldShowUpdate.value && "c-orange", "max-[1060px]:hidden"]}>{latestVersion.value.version}</span>
             <NButton secondary onClick={() => api.KillGameProcess()}>

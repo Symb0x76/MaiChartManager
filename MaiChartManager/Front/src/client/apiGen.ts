@@ -105,6 +105,7 @@ export interface GameModInfo {
   bundledAquaMaiVersion?: string | null;
   isJudgeDisplay4BInstalled?: boolean;
   isHidConflictExist?: boolean;
+  signature?: VerifyResult;
 }
 
 export interface GenreAddRequest {
@@ -270,6 +271,12 @@ export interface MusicXmlWithABJacket {
   problems?: string[] | null;
 }
 
+export enum PubKeyId {
+  None = "None",
+  Local = "Local",
+  CI = "CI",
+}
+
 export interface PutAssetDirTxtValueRequest {
   dirName?: string | null;
   fileName?: string | null;
@@ -322,6 +329,18 @@ export enum StorePurchaseStatus {
 
 export interface UploadAssetDirResult {
   dirName?: string | null;
+}
+
+export interface VerifyResult {
+  status?: VerifyStatus;
+  keyId?: PubKeyId;
+}
+
+export enum VerifyStatus {
+  NotFound = "NotFound",
+  InvalidKeyId = "InvalidKeyId",
+  InvalidSignature = "InvalidSignature",
+  Valid = "Valid",
 }
 
 export interface VersionXml {
