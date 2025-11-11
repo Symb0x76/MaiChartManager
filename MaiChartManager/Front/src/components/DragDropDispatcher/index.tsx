@@ -2,7 +2,9 @@ import { useDropZone } from '@vueuse/core';
 import { defineComponent, PropType, ref, computed, watch, shallowRef } from 'vue';
 import { startProcess as startProcessMusicImport } from '@/components/ImportCreateChartButton/ImportChartButton';
 import { uploadFlow as uploadFlowMovie } from '@/components/MusicEdit/SetMovieButton';
+import { uploadFlow as uploadFlowAcbAwb } from '@/components/MusicEdit/AcbAwb';
 import { selectedADir, selectedMusic } from '@/store/refs';
+import { upload as uploadJacket } from '@/components/JacketBox';
 
 export const mainDivRef = shallowRef<HTMLDivElement>();
 
@@ -34,6 +36,12 @@ export default defineComponent({
         const file = handles[0] as FileSystemFileHandle;
         if (file.kind === 'file' && (firstType.startsWith('video/') || ['dat', 'usm'].includes(file.name.toLowerCase().split('.').pop()!))) {
           uploadFlowMovie(file);
+        }
+        else if (file.kind === 'file' && (firstType.startsWith('audio/') || file.name.endsWith('.acb'))) {
+          uploadFlowAcbAwb(file);
+        }
+        else if (file.kind === 'file' && (firstType.startsWith('image/') || file.name.endsWith('.jpeg') || file.name.endsWith('.jpg') || file.name.endsWith('.png'))) {
+          uploadJacket(file);
         }
       }
     }

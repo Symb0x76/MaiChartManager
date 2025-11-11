@@ -8,6 +8,9 @@ import AudioPreviewEditorButton from "@/components/MusicEdit/AudioPreviewEditorB
 import SetMovieButton from "@/components/MusicEdit/SetMovieButton";
 import { t } from "@/locales";
 
+export let uploadFlow = async (fileHandle?: FileSystemFileHandle) => {
+}
+
 export default defineComponent({
   props: {
     song: { type: Object as PropType<MusicXmlWithABJacket>, required: true },
@@ -26,21 +29,23 @@ export default defineComponent({
     const cueIdNotMatch = computed(() => props.song.nonDxId !== props.song.cueId)
     const movieIdNotMatch = computed(() => props.song.nonDxId !== props.song.movieId)
 
-    const uploadFlow = async () => {
+    uploadFlow = async (fileHandle?: FileSystemFileHandle) => {
       tipShow.value = true
       try {
-        const [fileHandle] = await window.showOpenFilePicker({
-          id: 'acbawb',
-          startIn: 'downloads',
-          types: [
-            {
-              description: t('music.edit.supportedFileTypes'),
-              accept: {
-                "application/x-supported": [".mp3", ".wav", ".ogg", ".acb"],
+        if (!fileHandle) {
+          [fileHandle] = await window.showOpenFilePicker({
+            id: 'acbawb',
+            startIn: 'downloads',
+            types: [
+              {
+                description: t('music.edit.supportedFileTypes'),
+                accept: {
+                  "application/x-supported": [".mp3", ".wav", ".ogg", ".acb"],
+                },
               },
-            },
-          ],
-        });
+            ],
+          });
+        }
         tipShow.value = false;
         if (!fileHandle) return;
         const file = await fileHandle.getFile() as File;
@@ -99,7 +104,7 @@ export default defineComponent({
       {props.song.isAcbAwbExist && <audio controls src={url.value} class="w-0 grow"/>}
       {selectedADir.value !== 'A000' &&
         <NPopover trigger="hover" disabled={!cueIdNotMatch.value}>{{
-          trigger: () => <NButton secondary class={`${!props.song.isAcbAwbExist && "w-full"}`} onClick={uploadFlow} loading={load.value} disabled={cueIdNotMatch.value}>{props.song.isAcbAwbExist ? t('music.edit.replaceAudio') : t('music.edit.setAudio')}</NButton>,
+          trigger: () => <NButton secondary class={`${!props.song.isAcbAwbExist && "w-full"}`} onClick={() => uploadFlow()} loading={load.value} disabled={cueIdNotMatch.value}>{props.song.isAcbAwbExist ? t('music.edit.replaceAudio') : t('music.edit.setAudio')}</NButton>,
           default: () => t('music.edit.cueIdNotMatch')
         }}</NPopover>
       }
