@@ -29,15 +29,13 @@ export default defineComponent({
     const installingMelonLoader = ref(false)
     const message = useMessage();
     const { t } = useI18n();
-    const isConfigCorrupted = ref(false);
     const errTitle = ref('');
 
-    const updateAquaMaiConfig = async (forceDefault = false) => {
+    const updateAquaMaiConfig = async (forceDefault = false, skipSignatureCheck = false) => {
       try {
         configReadErr.value = ''
         configReadErrTitle.value = ''
-        config.value = (await api.GetAquaMaiConfig({forceDefault})).data;
-        isConfigCorrupted.value = false;
+        config.value = (await api.GetAquaMaiConfig({forceDefault, skipSignatureCheck})).data;
       } catch (err: any) {
         errTitle.value = t('mod.needInstallOrUpdate');
         if (err instanceof Response && !err.bodyUsed) {
@@ -52,9 +50,6 @@ export default defineComponent({
               }
               if(configReadErrTitle.value === 'System.Reflection.TargetInvocationException' && compareVersions(modInfo.value?.aquaMaiVersion || '0.0.0', '1.6.0') < 0) {
                 configReadErr.value = t('mod.versionTooLow');
-              }
-              if(configReadErrTitle.value.includes('ConfigCorruptedException')) {
-                isConfigCorrupted.value = true;
               }
               if(configReadErr.value.includes('Could not migrate the config')) {
                 errTitle.value = t('mod.configVersionHigher');
@@ -114,17 +109,32 @@ export default defineComponent({
       await saveImpl();
     }
 
+    const loadConfigIgnoreSignature = async () => {
+      await updateAquaMaiConfig(false, true);
+    }
+
 
     return () => {
 
       let editorPart = <></>;
-      if (isConfigCorrupted.value) {
+      if (configReadErrTitle.value.includes('ConfigCorruptedException')) {
         editorPart = <NFlex vertical justify="center" align="center" class="min-h-100">
           <div class="text-8">{t('mod.configCorrupted')}</div>
           <div class="c-gray-5 text-lg">{t('mod.configCorruptedMessage')}</div>
           <div>
             <NButton secondary onClick={resetToDefault}>
               {t('mod.resetToDefault')}
+            </NButton>
+          </div>
+        </NFlex>
+      }
+      else if (configReadErrTitle.value.includes('AquaMaiSignatureVerificationFailedException')) {
+        editorPart = <NFlex vertical justify="center" align="center" class="min-h-100">
+          <div class="text-8">{t('mod.aquaMaiSignatureVerificationFailed')}</div>
+          <div class="c-gray-5 text-lg">{t('mod.aquaMaiSignatureVerificationFailedMessage')}</div>
+          <div>
+            <NButton secondary onClick={loadConfigIgnoreSignature}>
+              {t('mod.loadConfigIgnoreSignature')}
             </NButton>
           </div>
         </NFlex>

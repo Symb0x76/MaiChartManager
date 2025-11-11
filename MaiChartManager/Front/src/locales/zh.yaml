@@ -327,6 +327,14 @@ mod:
   configCorruptedMessage: 请手动检查 AquaMai.toml 并尝试修复可能的问题
   resetToDefault: 重置回默认设置
   configVersionHigher: 配置文件版本高于 AquaMai 版本
+  aquaMaiSignatureVerificationFailed: AquaMai 签名验证失败
+  aquaMaiSignatureVerificationFailedMessage: 无法验证 AquaMai 来自官方来源。加载配置需要执行其中的代码，这可能存在安全风险。
+  loadConfigIgnoreSignature: 忽略签名验证并加载
+  signature:
+    verifiedOfficial: 已验证的 AquaMai 官方版本
+    verifiedCI: 已验证的 AquaMai 官方持续集成构建
+    notFound: 这个 AquaMai 没有有效的签名，很可能不是官方版本
+    invalid: 这个 AquaMai 的签名无效，很可能不是官方版本
 tools:
   title: 工具
   audioConvert: 音频转换（ACB + AWB）

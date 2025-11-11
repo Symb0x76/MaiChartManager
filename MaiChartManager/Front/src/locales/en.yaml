@@ -358,6 +358,18 @@ mod:
 
       If your cabinet has corresponding host software, it's recommended to use
       it for adjustments
+  configCorrupted: AquaMai config file corrupted
+  configCorruptedMessage: Please manually check AquaMai.toml and try to fix possible issues
+  resetToDefault: Reset to default settings
+  configVersionHigher: Config file version higher than AquaMai version
+  aquaMaiSignatureVerificationFailed: AquaMai signature verification failed
+  aquaMaiSignatureVerificationFailedMessage: Unable to verify AquaMai is from official source. Loading config requires executing code in it, which may pose security risks.
+  loadConfigIgnoreSignature: Ignore signature verification and load
+  signature:
+    verifiedOfficial: Verified official AquaMai version
+    verifiedCI: Verified official AquaMai CI build
+    notFound: This AquaMai has no valid signature, likely not an official version
+    invalid: This AquaMai has an invalid signature, likely not an official version
 tools:
   title: Tools
   audioConvert: Audio Convert (ACB + AWB)

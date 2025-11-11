@@ -1002,6 +1002,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       query?: {
         /** @default false */
         forceDefault?: boolean;
+        /** @default false */
+        skipSignatureCheck?: boolean;
       },
       params: RequestParams = {},
     ) =>

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using AquaMai.Config.HeadlessLoader;
 using AquaMai.Config.Interfaces;
 using MaiChartManager.Models;
+using MaiChartManager.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Mono.Cecil;
 using YamlDotNet.Serialization;
@@ -18,6 +19,8 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
     public class ConfigCorruptedException() : Exception(Locale.AquaMaiConfigCorrupted);
 
     public class AquaMaiNotInstalledException() : Exception(Locale.AquaMaiNotInstalled);
+
+    public class AquaMaiSignatureVerificationFailedException() : Exception("AquaMaiSignatureVerificationFailed");
 
     [NonAction]
     private static void CheckConfigApiVersion(HeadlessConfigInterface configInterface)
@@ -36,14 +39,23 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
     }
 
     [NonAction]
-    public static IConfig GetCurrentAquaMaiConfig(bool forceDefault = false)
+    public static IConfig GetCurrentAquaMaiConfig(bool forceDefault = false, bool skipSignatureCheck = false)
     {
         if (!System.IO.File.Exists(ModPaths.AquaMaiDllInstalledPath))
         {
             throw new AquaMaiNotInstalledException();
         }
 
-        var configInterface = HeadlessConfigLoader.LoadFromPacked(ModPaths.AquaMaiDllInstalledPath);
+        var binary = System.IO.File.ReadAllBytes(ModPaths.AquaMaiDllInstalledPath);
+        if (!skipSignatureCheck)
+        {
+            var sigResult = AquaMaiSignatureV2.VerifySignature(binary);
+            if (sigResult.Status != AquaMaiSignatureV2.VerifyStatus.Valid)
+            {
+                throw new AquaMaiSignatureVerificationFailedException();
+            }
+        }
+        var configInterface = HeadlessConfigLoader.LoadFromPacked(binary);
         var config = configInterface.CreateConfig();
         CheckConfigApiVersion(configInterface);
         if (System.IO.File.Exists(ModPaths.AquaMaiConfigPath) && !forceDefault)
@@ -61,6 +73,7 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
 
                 var parser = configInterface.GetConfigParser();
                 parser.Parse(config, view);
+                StaticSettings.UpdateAssetPathsFromAquaMaiConfig(config);
             }
             catch (Exception ex)
             {
@@ -80,7 +93,7 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
     }
 
     [HttpGet]
-    public AquaMaiConfigDto.ConfigDto GetAquaMaiConfig(bool forceDefault = false)
+    public AquaMaiConfigDto.ConfigDto GetAquaMaiConfig(bool forceDefault = false, bool skipSignatureCheck = false)
     {
         Dictionary<string, string[]>? configSort = null;
         using (var stream = new FileStream(ModPaths.AquaMaiDllInstalledPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -95,7 +108,7 @@ public class ConfigurationController(StaticSettings settings, ILogger<Configurat
                 configSort = deserializer.Deserialize<Dictionary<string, string[]>>(yaml);
             }
         }
-        var config = GetCurrentAquaMaiConfig(forceDefault);
+        var config = GetCurrentAquaMaiConfig(forceDefault, skipSignatureCheck);
         return new AquaMaiConfigDto.ConfigDto(
             config.ReflectionManager.Sections.Select(section =>
             {

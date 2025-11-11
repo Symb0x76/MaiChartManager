@@ -2,11 +2,13 @@ import { defineComponent, PropType, ref, computed, watch } from 'vue';
 import { NFlex, NPopover } from 'naive-ui';
 import { modInfo } from '@/store/refs';
 import { PubKeyId, VerifyStatus } from '@/client/apiGen';
+import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
   // props: {
   // },
   setup(props, { emit }) {
+    const { t } = useI18n();
 
     return () => modInfo.value?.signature && <NPopover trigger="hover">
       {{
@@ -15,13 +17,13 @@ export default defineComponent({
           : <div class="text-red-5 i-tabler:certificate-off text-2em" />,
         default: () => <NFlex vertical>
           {modInfo.value?.signature?.status === VerifyStatus.Valid && modInfo.value.signature?.keyId === PubKeyId.Local &&
-            <div>已验证的 AquaMai 官方版本</div>}
+            <div>{t('mod.signature.verifiedOfficial')}</div>}
           {modInfo.value?.signature?.status === VerifyStatus.Valid && modInfo.value.signature?.keyId === PubKeyId.CI &&
-            <div>已验证的 AquaMai 官方持续集成构建</div>}
+            <div>{t('mod.signature.verifiedCI')}</div>}
           {modInfo.value?.signature?.status === VerifyStatus.NotFound &&
-            <div>这个 AquaMai 没有有效的签名，很可能不是官方版本</div>}
+            <div>{t('mod.signature.notFound')}</div>}
           {modInfo.value?.signature?.status === VerifyStatus.InvalidSignature &&
-            <div>这个 AquaMai 的签名无效，很可能不是官方版本</div>}
+            <div>{t('mod.signature.invalid')}</div>}
         </NFlex>
       }}
     </NPopover>;
