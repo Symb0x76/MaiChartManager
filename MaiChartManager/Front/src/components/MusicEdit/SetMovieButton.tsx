@@ -16,6 +16,9 @@ enum STEP {
   Progress,
 }
 
+export let uploadFlow = async (fileHandle?: FileSystemFileHandle) => {
+}
+
 export default defineComponent({
   props: {
     disabled: Boolean,
@@ -84,28 +87,48 @@ export default defineComponent({
       });
     })
 
-    const uploadFlow = async () => {
+    uploadFlow = async (fileHandle?: FileSystemFileHandle) => {
       step.value = STEP.Select
       try {
-        const [fileHandle] = await window.showOpenFilePicker({
-          id: 'movie',
-          startIn: 'downloads',
-          types: [
-            {
-              description: t('music.edit.supportedFileTypes'),
-              accept: {
-                "video/*": [".dat"],
-                "image/*": [],
+        if (!fileHandle) {
+          [fileHandle] = await window.showOpenFilePicker({
+            id: 'movie',
+            startIn: 'downloads',
+            types: [
+              {
+                description: t('music.edit.supportedFileTypes'),
+                accept: {
+                  "video/*": [".dat"],
+                  "image/*": [],
+                },
               },
-            },
-          ],
-        });
+            ],
+          });
+        }
         step.value = STEP.None
         if (!fileHandle) return;
         const file = await fileHandle.getFile() as File;
 
         if (file.name.endsWith('.dat')) {
           load.value = true;
+          await new Promise<void>((resolve, reject) => {
+            dialog.info({
+              showIcon: false,
+              title: t('common.confirm'),
+              content: t('music.edit.confirmSetMovie', { filename: file.name }),
+              positiveText: t('common.confirm'),
+              negativeText: t('common.cancel'),
+              positiveButtonProps: {
+                type: 'primary',
+              },
+              onPositiveClick: () => {
+                resolve();
+              },
+              onNegativeClick: () => {
+                reject(new DOMException('', 'AbortError'));
+              },
+            })
+          })
           await api.SetMovie(props.song.id!, selectedADir.value, { file, padding: 0 });
         } else if (version.value?.license !== LicenseStatus.Active) {
           showNeedPurchaseDialog.value = true;
@@ -134,7 +157,7 @@ export default defineComponent({
       }
     }
 
-    return () => <NButton secondary onClick={uploadFlow} loading={load.value} disabled={props.disabled}>
+    return () => <NButton secondary onClick={() => uploadFlow()} loading={load.value} disabled={props.disabled}>
       {t('music.edit.setPv')}
 
       <NDrawer show={step.value === STEP.Select} height={250} placement="bottom">
@@ -151,7 +174,7 @@ export default defineComponent({
       </NDrawer>
       <NModal
         preset="card"
-        class="w-[min(30vw,25em)]"
+        class="w-[min(30vw,30em)]"
         title={t('music.edit.setOffsetSeconds')}
         show={step.value === STEP.Offset}
         onUpdateShow={() => step.value = STEP.None}

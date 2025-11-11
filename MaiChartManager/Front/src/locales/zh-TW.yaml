@@ -311,6 +311,16 @@ mod:
     button2P: 2P 按鍵 {index}
     select1P: 1P 選擇鍵
     select2P: 2P 選擇鍵
+  soundChannel:
+    P1SpeakerLeft: 1P 外放左
+    P1SpeakerRight: 1P 外放右
+    P1HeadphoneLeft: 1P 耳機左
+    P1HeadphoneRight: 1P 耳機右
+    P2SpeakerLeft: 2P 外放左
+    P2SpeakerRight: 2P 外放右
+    P2HeadphoneLeft: 2P 耳機左
+    P2HeadphoneRight: 2P 耳機右
+    None: 停用
   judgeAccuracyInfo:
     author: 作者：
     viewDoc: 檢視說明檔案

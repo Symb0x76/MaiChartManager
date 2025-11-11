@@ -342,6 +342,16 @@ mod:
     button2P: 2P Button {index}
     select1P: 1P Select
     select2P: 2P Select
+  soundChannel:
+    P1SpeakerLeft: 1P Speaker Left
+    P1SpeakerRight: 1P Speaker Right
+    P1HeadphoneLeft: 1P Headphone Left
+    P1HeadphoneRight: 1P Headphone Right
+    P2SpeakerLeft: 2P Speaker Left
+    P2SpeakerRight: 2P Speaker Right
+    P2HeadphoneLeft: 2P Headphone Left
+    P2HeadphoneRight: 2P Headphone Right
+    None: Disabled
   judgeAccuracyInfo:
     author: 'Author: '
     viewDoc: View Documentation

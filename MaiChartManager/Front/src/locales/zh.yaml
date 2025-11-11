@@ -121,6 +121,7 @@ music:
       如果游戏版本是 1.{gameVersion} 的话，这里的数字大于等于 {b15ver} 就会让歌出现在 B15 里面，否则就会出现在 B35
       里面。这个值还会控制按上线时间排序时的顺序
     idConflictWarning: 以下目录中存在冲突的 ID
+    confirmSetMovie: 确认要使用 {filename} 替换当前的 PV 吗
   batch:
     title: 批量操作
     batchAndSearch: 批量操作与搜索
