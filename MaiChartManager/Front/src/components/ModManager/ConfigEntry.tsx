@@ -17,6 +17,17 @@ export default defineComponent({
   setup(props, { emit }) {
     const { t, te } = useI18n();
 
+    const optionsIoKeyMap = [
+      { label: t('mod.adxHid.disabled'), value: 'None' },
+      { label: t('mod.adxHid.select1P'), value: 'Select1P' },
+      { label: t('mod.adxHid.select2P'), value: 'Select2P' },
+      { label: t('mod.adxHid.service'), value: 'Service' },
+      { label: t('mod.adxHid.test'), value: 'Test' },
+    ];
+
+    const optionsSoundChannel = ['None', 'P1SpeakerLeft', 'P1SpeakerRight', 'P1HeadphoneLeft', 'P1HeadphoneRight', 'P2SpeakerLeft', 'P2SpeakerRight', 'P2HeadphoneLeft', 'P2HeadphoneRight']
+      .map(channel => ({ label: t('mod.soundChannel.' + channel), value: channel }));
+
     const comment = computed(() => {
       const localeKey = 'mod.commentOverrides.' + props.entry.path!.replace(/\./g, '_');
       if (te(localeKey)) {
@@ -59,6 +70,12 @@ export default defineComponent({
                 return <NSelect v-model:value={props.entryState.value} options={Object.entries(KeyCodeName).map(([label, value]) => ({ label, value }))}/>;
               case 'AquaMai.Config.Types.KeyCodeID':
                 return <NSelect v-model:value={props.entryState.value} options={Object.entries(KeyCodeID).map(([label, value]) => ({label, value}))}/>;
+              case 'AquaMai.Config.Types.IOKeyMap':
+                return <NSelect v-model:value={props.entryState.value} options={optionsIoKeyMap}/>;
+              case 'AquaMai.Config.Types.AdxKeyMap':
+                return <NSelect v-model:value={props.entryState.value} options={optionsIoKeyMap}/>;
+              case 'AquaMai.Config.Types.SoundChannel':
+                return <NSelect v-model:value={props.entryState.value} options={optionsSoundChannel}/>;
             }
             return t('mod.unsupportedType', { type: props.entry.fieldType });
           })()}
