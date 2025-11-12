@@ -53,6 +53,7 @@ export const modInfo = ref<GameModInfo>();
 
 export const musicList = computed(() => musicListAll.value.filter(m => m.assetDir === selectedADir.value));
 export const selectedMusic = computed(() => musicList.value.find(m => m.id === selectMusicId.value));
+export const selectedLevel = ref(0);
 
 export const aquaMaiConfig = ref<ConfigDto>()
 export const modUpdateInfo = ref<Awaited<ReturnType<typeof aquaMaiVersionConfig.getGetConfig>>['data']>([{

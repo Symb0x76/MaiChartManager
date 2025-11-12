@@ -5,6 +5,7 @@ import { uploadFlow as uploadFlowMovie } from '@/components/MusicEdit/SetMovieBu
 import { uploadFlow as uploadFlowAcbAwb } from '@/components/MusicEdit/AcbAwb';
 import { selectedADir, selectedMusic } from '@/store/refs';
 import { upload as uploadJacket } from '@/components/JacketBox';
+import ReplaceChartModal, { replaceChartFileHandle } from './ReplaceChartModal';
 
 export const mainDivRef = shallowRef<HTMLDivElement>();
 
@@ -42,6 +43,9 @@ export default defineComponent({
         }
         else if (file.kind === 'file' && (firstType.startsWith('image/') || file.name.endsWith('.jpeg') || file.name.endsWith('.jpg') || file.name.endsWith('.png'))) {
           uploadJacket(file);
+        }
+        else if (file.kind === 'file' && file.name.endsWith('.ma2')) {
+          replaceChartFileHandle.value = file;
         }
       }
     }
@@ -92,6 +96,7 @@ export default defineComponent({
           松开鼠标导入谱面
         </div>} */}
       </div>}
+      <ReplaceChartModal />
     </>;
   },
 });

@@ -122,6 +122,10 @@ music:
       里面。这个值还会控制按上线时间排序时的顺序
     idConflictWarning: 以下目录中存在冲突的 ID
     confirmSetMovie: 确认要使用 {filename} 替换当前的 PV 吗
+    replaceChart: 替换谱面
+    replaceChartConfirm: 确认要替换 {level} 谱面吗？
+    replaceChartFailed: 替换谱面失败
+    replaceChartSuccess: 替换谱面成功
   batch:
     title: 批量操作
     batchAndSearch: 批量操作与搜索

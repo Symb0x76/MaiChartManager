@@ -64,6 +64,6 @@ export default defineComponent({
         }
       }
 
-    return () => <img src={jacketUrl.value} class={`object-fill rounded-lg ${props.upload && 'cursor-pointer'}`} onClick={() => upload()} />
+    return () => <img src={jacketUrl.value} class={`object-fill rounded-lg ${props.upload && 'cursor-pointer'}`} onClick={props.upload ? () => upload() : undefined} />
   }
 })

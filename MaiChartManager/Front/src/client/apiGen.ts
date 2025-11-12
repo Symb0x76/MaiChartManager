@@ -946,6 +946,31 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     /**
      * No description
      *
+     * @tags Chart
+     * @name ReplaceChart
+     * @request POST:/MaiChartManagerServlet/ReplaceChartApi/{assetDir}/{id}/{level}
+     */
+    ReplaceChart: (
+      id: number,
+      level: number,
+      assetDir: string,
+      data: {
+        /** @format binary */
+        file?: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/ReplaceChartApi/${assetDir}/${id}/${level}`,
+        method: "POST",
+        body: data,
+        type: ContentType.FormData,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
      * @tags ChartPreview
      * @name ChartPreview
      * @request GET:/MaiChartManagerServlet/ChartPreviewApi/{assetDir}/{id}/{level}

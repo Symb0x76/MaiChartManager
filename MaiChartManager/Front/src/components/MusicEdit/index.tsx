@@ -1,6 +1,6 @@
 import { computed, defineComponent, onMounted, PropType, ref, watch } from "vue";
 import { Chart, GenreXml, MusicXmlWithABJacket } from "@/client/apiGen";
-import { addVersionList, genreList, globalCapture, selectedADir, selectedMusic as info, selectMusicId, updateAddVersionList, updateGenreList, updateMusicList } from "@/store/refs";
+import { addVersionList, genreList, globalCapture, selectedADir, selectedMusic as info, selectMusicId, updateAddVersionList, updateGenreList, updateMusicList, selectedLevel } from "@/store/refs";
 import api from "@/client/api";
 import { NButton, NFlex, NForm, NFormItem, NInput, NInputNumber, NSelect, NSwitch, NTabPane, NTabs, SelectOption, useDialog, useMessage } from "naive-ui";
 import JacketBox from "../JacketBox";
@@ -19,7 +19,6 @@ import { t } from "@/locales";
 
 const Component = defineComponent({
   setup() {
-    const selectedLevel = ref(0);
     const message = useMessage();
 
     const firstEnabledChart = info.value?.charts?.findIndex(chart => chart.enable);
