@@ -20,6 +20,8 @@ export default defineComponent({
             <div>{t('mod.signature.verifiedOfficial')}</div>}
           {modInfo.value?.signature?.status === VerifyStatus.Valid && modInfo.value.signature?.keyId === PubKeyId.CI &&
             <div>{t('mod.signature.verifiedCI')}</div>}
+          {modInfo.value?.signature?.status === VerifyStatus.Valid && modInfo.value.signature?.keyId === PubKeyId.None &&
+            <div>{t('mod.signature.verifiedOld')}</div>}
           {modInfo.value?.signature?.status === VerifyStatus.NotFound &&
             <div>{t('mod.signature.notFound')}</div>}
           {modInfo.value?.signature?.status === VerifyStatus.InvalidSignature &&

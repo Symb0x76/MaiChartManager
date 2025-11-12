@@ -67,6 +67,8 @@ public static class AquaMaiSignatureV2
         },
     };
 
+    private static readonly HashSet<string> oldHashes = File.ReadAllLines(Path.Combine(StaticSettings.exeDir, "oldAquaMaiHashes.txt")).ToHashSet();
+
     public enum VerifyStatus
     {
         NotFound,
@@ -82,16 +84,19 @@ public static class AquaMaiSignatureV2
         var block = parseFromBytes(data);
         if (block == null)
         {
-            return new VerifyResult(VerifyStatus.NotFound, PubKeyId.None);
+            var sha256 = SHA256.HashData(data);
+            var hashString = Convert.ToHexString(sha256).ToLowerInvariant();
+            var oldValid = oldHashes.Contains(hashString);
+            return new VerifyResult(oldValid ? VerifyStatus.Valid : VerifyStatus.NotFound, PubKeyId.None);
         }
 
-        if (!pubKeys.ContainsKey(block.Value.KeyId))
+        if (!pubKeys.TryGetValue(block.Value.KeyId, out var pubKey))
         {
             return new VerifyResult(VerifyStatus.InvalidKeyId, block.Value.KeyId);
         }
 
         using var ecdsa = ECDsa.Create();
-        ecdsa.ImportSubjectPublicKeyInfo(pubKeys[block.Value.KeyId], out _);
+        ecdsa.ImportSubjectPublicKeyInfo(pubKey, out _);
 
         var size = Marshal.SizeOf<AquaMaiSignatureBlock>();
         var dataToVerify = data.AsSpan(0, data.Length - size);
