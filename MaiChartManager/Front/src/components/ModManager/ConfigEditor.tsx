@@ -12,6 +12,8 @@ import { useI18n } from 'vue-i18n';
 import { debounce } from 'perfect-debounce';
 import AquaMaiSignatureStatusDisplay from "./AquaMaiSignatureStatusDisplay";
 
+export let updateAquaMaiConfig = async (forceDefault = false, skipSignatureCheck = false)=>void 0;
+
 export default defineComponent({
   props: {
     show: Boolean,
@@ -31,7 +33,7 @@ export default defineComponent({
     const { t } = useI18n();
     const errTitle = ref('');
 
-    const updateAquaMaiConfig = async (forceDefault = false, skipSignatureCheck = false) => {
+    updateAquaMaiConfig = async (forceDefault = false, skipSignatureCheck = false) => {
       try {
         configReadErr.value = ''
         configReadErrTitle.value = ''

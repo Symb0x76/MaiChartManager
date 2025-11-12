@@ -350,6 +350,15 @@ mod:
     verifiedCI: 已验证的 AquaMai 官方持续集成构建
     notFound: 这个 AquaMai 没有有效的签名，很可能不是官方版本
     invalid: 这个 AquaMai 的签名无效，很可能不是官方版本
+  manualInstall:
+    invalidAquaMaiFile: 无效的 AquaMai DLL
+    invalidAquaMaiFileMessage: 拖放有效的 AquaMai.dll 到这里来安装它
+    checkFailed: 检测 AquaMai 拖放时遇到错误
+    confirmInstallTitle: 安装这个 AquaMai.dll 吗？
+    version: 版本
+    buildDate: 构建日期
+    installFailed: 手动安装 AquaMai 失败
+    installSuccess: 安装成功
 tools:
   title: 工具
   audioConvert: 音频转换（ACB + AWB）

@@ -34,6 +34,10 @@ public static class AquaMaiSignatureV2
             {
                 return null;
             }
+            if (stru.Version != 1)
+            {
+                return null;
+            }
             return stru;
         }
         finally

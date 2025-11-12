@@ -6,6 +6,7 @@ import { uploadFlow as uploadFlowAcbAwb } from '@/components/MusicEdit/AcbAwb';
 import { selectedADir, selectedMusic } from '@/store/refs';
 import { upload as uploadJacket } from '@/components/JacketBox';
 import ReplaceChartModal, { replaceChartFileHandle } from './ReplaceChartModal';
+import AquaMaiManualInstaller, { setManualInstallAquaMai } from './AquaMaiManualInstaller';
 
 export const mainDivRef = shallowRef<HTMLDivElement>();
 
@@ -32,9 +33,12 @@ export default defineComponent({
         startProcessMusicImport(handles.length === 1 ? handles[0] : handles);
       }
       else if (handles.length === 1 && handles[0] instanceof FileSystemFileHandle) {
+        const file = handles[0] as FileSystemFileHandle;
+        if (file.kind === 'file' && file.name.endsWith('.dll')) {
+          setManualInstallAquaMai(file);
+        }
         if (selectedADir.value === 'A000') return;
         if (!selectedMusic.value) return;
-        const file = handles[0] as FileSystemFileHandle;
         if (file.kind === 'file' && (firstType.startsWith('video/') || ['dat', 'usm'].includes(file.name.toLowerCase().split('.').pop()!))) {
           uploadFlowMovie(file);
         }
@@ -97,6 +101,7 @@ export default defineComponent({
         </div>} */}
       </div>}
       <ReplaceChartModal />
+      <AquaMaiManualInstaller />
     </>;
   },
 });

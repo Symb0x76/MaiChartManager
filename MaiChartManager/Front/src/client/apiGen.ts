@@ -57,6 +57,13 @@ export interface Chart {
   problems?: string[] | null;
 }
 
+export interface CheckAquaMaiFileResult {
+  isValid?: boolean;
+  version?: string | null;
+  signature?: VerifyResult;
+  buildDate?: string | null;
+}
+
 export interface CheckConflictEntry {
   type?: AssetType;
   upperDir?: string | null;
@@ -1463,6 +1470,51 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         body: data,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ManualInstall
+     * @name CheckAquaMaiFile
+     * @request POST:/MaiChartManagerServlet/CheckAquaMaiFileApi
+     */
+    CheckAquaMaiFile: (
+      data: {
+        /** @format binary */
+        file?: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<CheckAquaMaiFileResult, any>({
+        path: `/MaiChartManagerServlet/CheckAquaMaiFileApi`,
+        method: "POST",
+        body: data,
+        type: ContentType.FormData,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ManualInstall
+     * @name InstallAquaMaiFile
+     * @request POST:/MaiChartManagerServlet/InstallAquaMaiFileApi
+     */
+    InstallAquaMaiFile: (
+      data: {
+        /** @format binary */
+        file?: File;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/InstallAquaMaiFileApi`,
+        method: "POST",
+        body: data,
+        type: ContentType.FormData,
         ...params,
       }),
 
