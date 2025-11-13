@@ -77,7 +77,7 @@ def create_usm():
         for packet in usm.stream(mode, encoding=args.encoding):
             f.write(packet)
 
-    print("Done creating USM file.")
+#     print("Done creating USM file.")
 
 
 def extract_usm():
@@ -365,7 +365,7 @@ def main():
         help="Specify operation",
     )
     args, _ = parser.parse_known_args()
-    print(f"WannaCRI {wannacri.__version__}")
+#     print(f"WannaCRI {wannacri.__version__}")
 
     OP_DICT[args.operation]()
 

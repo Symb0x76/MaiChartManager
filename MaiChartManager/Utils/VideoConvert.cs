@@ -39,7 +39,6 @@ public static class VideoConvert
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
             HardwareAcceleration = HardwareAccelerationStatus.Disabled;
         }
 
@@ -60,10 +59,7 @@ public static class VideoConvert
                 H264Encoder = encoder;
                 break;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+            catch (Exception e) { }
         }
 
         Console.WriteLine($"H264 encoder: {H264Encoder}");
@@ -262,8 +258,6 @@ public static class VideoConvert
                 WinUtils.SetTaskbarProgress((ulong)args.Percent);
             };
         }
-
-        Console.WriteLine("Conversion command: " + conversion.Build());
 
         await conversion.Start();
     }

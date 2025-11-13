@@ -53,7 +53,7 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
             if (settings.Sources.Length == 1)
             {
                 var source = settings.Sources[0];
-                var output = settings.Output ?? Path.ChangeExtension(source, "");
+                var output = settings.Output ?? Path.ChangeExtension(source, null);
                 await ConvertSingleFile(source, output, settings);
             }
             else
@@ -96,39 +96,39 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
     {
         AnsiConsole.MarkupLine($"[yellow]正在转换 {settings.Sources.Length} 个文件...[/]");
 
-        var table = new Table();
-        table.AddColumn("文件");
-        table.AddColumn("状态");
-
-        foreach (var source in settings.Sources)
-        {
-            var output = Path.ChangeExtension(source, "");
-
-            try
+        await AnsiConsole.Progress()
+            .AutoClear(false)
+            .Columns(
+                new TaskDescriptionColumn(),
+                new SpinnerColumn())
+            .StartAsync(async ctx =>
             {
-                await Task.Run(() =>
+                foreach (var source in settings.Sources)
                 {
-                    Audio.ConvertToMai(
-                        srcPath: source,
-                        savePath: output,
-                        padding: settings.Padding
-                    );
-                });
+                    var output = Path.ChangeExtension(source, null);
+                    var task = ctx.AddTask($"[green]{Path.GetFileName(source)}[/]");
+                    task.MaxValue = 100;
 
-                table.AddRow(
-                    Path.GetFileName(source),
-                    $"[green]✓ → {Path.GetFileName(output)}.acb[/]"
-                );
-            }
-            catch (Exception ex)
-            {
-                table.AddRow(
-                    Path.GetFileName(source),
-                    $"[red]✗ {ex.Message}[/]"
-                );
-            }
-        }
+                    try
+                    {
+                        task.StartTask();
+                        await Task.Run(() =>
+                        {
+                            Audio.ConvertToMai(
+                                srcPath: source,
+                                savePath: output,
+                                padding: settings.Padding
+                            );
+                        });
 
-        AnsiConsole.Write(table);
+                        task.StopTask();
+                    }
+                    catch (Exception ex)
+                    {
+                        task.Description = $"[red]{Path.GetFileName(source)} - 失败[/]";
+                        task.StopTask();
+                    }
+                }
+            });
     }
 }

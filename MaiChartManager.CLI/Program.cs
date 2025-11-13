@@ -1,5 +1,8 @@
+using System.Text;
 using MaiChartManager.CLI.Commands;
 using Spectre.Console.Cli;
+
+Console.OutputEncoding = Encoding.UTF8;
 
 var app = new CommandApp();
 

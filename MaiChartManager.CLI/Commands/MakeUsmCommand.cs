@@ -150,6 +150,8 @@ public class MakeUsmCommand : AsyncCommand<MakeUsmCommand.Settings>
                     }
                     catch (Exception ex)
                     {
+                        task.Description = $"[red]{Path.GetFileName(source)} - 失败[/]";
+                        task.Value = 100;
                         task.StopTask();
                         AnsiConsole.MarkupLine($"[red]✗ 转换失败 {Path.GetFileName(source)}: {ex.Message}[/]");
                     }

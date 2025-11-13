@@ -22,6 +22,7 @@
 
     <ItemGroup>
         <PackageReference Include="Spectre.Console.Cli" Version="0.53.0"/>
+        <PackageReference Include="Unknown6656.Terminal" Version="1.5.434.8968"/>
     </ItemGroup>
 
 </Project>
