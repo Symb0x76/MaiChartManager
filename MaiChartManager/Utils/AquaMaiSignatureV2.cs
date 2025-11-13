@@ -58,7 +58,7 @@ public static class AquaMaiSignatureV2
         {
             PubKeyId.Local,
             Convert.FromBase64String(
-                "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQA3ekmuUGESGdUfOuGfWxZ2tIGsWJaAGsciSP2nyouGquEJf2k+6fm21ESJQAXg9XOUaf3jcsZU+YZdzczDIorMNMBcxQXet1B/B3Mqz7CLdRthDhLelVkrqeRE8TNcPUCQjT/pxKLWBAQWDkwdzsUQS0LLpaZ0NbG4880RzNY5ia7zqg=")
+                "MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQBVoScU915wnWeDOvLsQd3uWh9NwclPhup8TT+cqiV3SB683JgQTpLYv2XRCGfH/3zIwTU2KDIXwNPsDPlOpH0QIkB0aVIDo9g6mus7cTMphq/7yjQQEPnsBQO5KbtcNxcy7mSnhykSea2Gv+iOKu1C4FOaO39zNe0HULVoqMrcCNLRkg=")
         },
         {
             PubKeyId.CI,

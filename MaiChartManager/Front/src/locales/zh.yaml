@@ -360,6 +360,11 @@ mod:
     buildDate: 构建日期
     installFailed: 手动安装 AquaMai 失败
     installSuccess: 安装成功
+  community:
+    title: 社区贡献功能
+    description: |-
+      此功能由社区成员贡献，可能无法获得与核心功能相同级别的技术支持
+      如遇技术问题，我们会尽力协助，但可能无法提供即时支持
 tools:
   title: 工具
   audioConvert: 音频转换（ACB + AWB）

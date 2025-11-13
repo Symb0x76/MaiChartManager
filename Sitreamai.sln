@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AquaMai.Config.Interfaces",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AquaMai.Config.HeadlessLoader", "AquaMai\AquaMai.Config.HeadlessLoader\AquaMai.Config.HeadlessLoader.csproj", "{6B5E1F3E-D012-4CFB-A2FA-26A6CE06BE66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaiChartManager.CLI", "MaiChartManager.CLI\MaiChartManager.CLI.csproj", "{B53B0257-7EA2-432B-B43E-C6A463D18788}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -66,6 +68,12 @@ Global
 		{6B5E1F3E-D012-4CFB-A2FA-26A6CE06BE66}.Release|x64.ActiveCfg = Release|Any CPU
 		{6B5E1F3E-D012-4CFB-A2FA-26A6CE06BE66}.Release|x64.Build.0 = Release|Any CPU
 		{6B5E1F3E-D012-4CFB-A2FA-26A6CE06BE66}.Crack|x64.ActiveCfg = Release|Any CPU
+		{B53B0257-7EA2-432B-B43E-C6A463D18788}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B53B0257-7EA2-432B-B43E-C6A463D18788}.Debug|x64.Build.0 = Debug|Any CPU
+		{B53B0257-7EA2-432B-B43E-C6A463D18788}.Release|x64.ActiveCfg = Release|Any CPU
+		{B53B0257-7EA2-432B-B43E-C6A463D18788}.Release|x64.Build.0 = Release|Any CPU
+		{B53B0257-7EA2-432B-B43E-C6A463D18788}.Crack|x64.ActiveCfg = Debug|Any CPU
+		{B53B0257-7EA2-432B-B43E-C6A463D18788}.Crack|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

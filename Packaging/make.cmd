@@ -6,6 +6,7 @@ pushd ..\AquaMai
 taskkill /f /im dotnet.exe
 dotnet cake
 copy /y Output\AquaMai.dll ..\MaiChartManager\Resources
+D:\Projects\mai\ReleaseSigner\AquaMaiLocalBuild\bin\Release\net9.0\AquaMaiLocalBuild.exe ..\MaiChartManager\Resources\AquaMai.dll
 popd
 
 pushd ..\MaiChartManager\Front
