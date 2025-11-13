@@ -2,6 +2,7 @@ using MaiChartManager.Utils;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using MaiChartManager.CLI.Utils;
 
 namespace MaiChartManager.CLI.Commands;
 
@@ -59,7 +60,9 @@ public class MakeUsmCommand : AsyncCommand<MakeUsmCommand.Settings>
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync("正在检测硬件加速...", async ctx =>
                 {
+                    TerminalProgress.Set(TerminalProgress.Status.Indeterminate);
                     await VideoConvert.CheckHardwareAcceleration();
+                    TerminalProgress.Clear();
                 });
 
             AnsiConsole.MarkupLine($"[green]硬件加速: {VideoConvert.HardwareAcceleration}[/]");
@@ -101,15 +104,20 @@ public class MakeUsmCommand : AsyncCommand<MakeUsmCommand.Settings>
             {
                 var task = ctx.AddTask($"[green]转换 {Path.GetFileName(source)}[/]");
                 task.MaxValue = 100;
+                TerminalProgress.Set(TerminalProgress.Status.Indeterminate);
 
                 await VideoConvert.ConvertVideoToUsm(
                     source,
                     output,
                     noScale: settings.NoScale,
                     yuv420p: settings.UseYuv420p,
-                    onProgress: percent => task.Value = percent
-                );
+                    onProgress: percent =>
+                    {
+                        TerminalProgress.Set(percent);
+                        task.Value = percent;
+                    });
 
+                TerminalProgress.Clear();
                 task.Value = 100;
             });
 
@@ -129,11 +137,21 @@ public class MakeUsmCommand : AsyncCommand<MakeUsmCommand.Settings>
                 new SpinnerColumn())
             .StartAsync(async ctx =>
             {
+                int doneCount = 0, errorCount = 0;
                 foreach (var source in settings.Sources)
                 {
                     var output = Path.ChangeExtension(source, ".dat");
                     var task = ctx.AddTask($"[green]{Path.GetFileName(source)}[/]");
                     task.MaxValue = 100;
+
+                    if (errorCount > 0)
+                    {
+                        TerminalProgress.Set(TerminalProgress.Status.Warning, (errorCount + doneCount) * 100 / settings.Sources.Length);
+                    }
+                    else
+                    {
+                        TerminalProgress.Set(doneCount * 100 / settings.Sources.Length);
+                    }
 
                     try
                     {
@@ -145,17 +163,18 @@ public class MakeUsmCommand : AsyncCommand<MakeUsmCommand.Settings>
                             onProgress: percent => task.Value = percent
                         );
 
+                        doneCount++;
                         task.Value = 100;
-                        AnsiConsole.MarkupLine($"[green]✓ {Path.GetFileName(source)} → {Path.GetFileName(output)}[/]");
                     }
                     catch (Exception ex)
                     {
+                        errorCount++;
                         task.Description = $"[red]{Path.GetFileName(source)} - 失败[/]";
                         task.Value = 100;
                         task.StopTask();
-                        AnsiConsole.MarkupLine($"[red]✗ 转换失败 {Path.GetFileName(source)}: {ex.Message}[/]");
                     }
                 }
+                TerminalProgress.Clear();
             });
     }
 }

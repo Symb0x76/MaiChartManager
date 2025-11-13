@@ -2,6 +2,7 @@ using MaiChartManager.Utils;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using MaiChartManager.CLI.Utils;
 
 namespace MaiChartManager.CLI.Commands;
 
@@ -74,6 +75,7 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
     private async Task ConvertSingleFile(string source, string output, Settings settings)
     {
         AnsiConsole.MarkupLine($"[yellow]正在转换:[/] {Path.GetFileName(source)} → {Path.GetFileName(output)}.acb");
+        TerminalProgress.Set(TerminalProgress.Status.Indeterminate);
 
         await AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
@@ -89,6 +91,7 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
                 });
             });
 
+        TerminalProgress.Clear();
         AnsiConsole.MarkupLine($"[green]✓ 已保存到: {output}[/]");
     }
 
@@ -103,11 +106,21 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
                 new SpinnerColumn())
             .StartAsync(async ctx =>
             {
+                int doneCount = 0, errorCount = 0;
                 foreach (var source in settings.Sources)
                 {
                     var output = Path.ChangeExtension(source, null);
                     var task = ctx.AddTask($"[green]{Path.GetFileName(source)}[/]");
                     task.MaxValue = 100;
+
+                    if (errorCount > 0)
+                    {
+                        TerminalProgress.Set(TerminalProgress.Status.Warning, (errorCount + doneCount) * 100 / settings.Sources.Length);
+                    }
+                    else
+                    {
+                        TerminalProgress.Set(doneCount * 100 / settings.Sources.Length);
+                    }
 
                     try
                     {
@@ -120,15 +133,18 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
                                 padding: settings.Padding
                             );
                         });
+                        doneCount++;
 
                         task.StopTask();
                     }
                     catch (Exception ex)
                     {
+                        errorCount++;
                         task.Description = $"[red]{Path.GetFileName(source)} - 失败[/]";
                         task.StopTask();
                     }
                 }
+                TerminalProgress.Clear();
             });
     }
 }

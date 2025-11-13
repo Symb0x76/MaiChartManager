@@ -1,8 +1,10 @@
 using System.Text;
 using MaiChartManager.CLI.Commands;
+using MaiChartManager.CLI.Utils;
 using Spectre.Console.Cli;
 
 Console.OutputEncoding = Encoding.UTF8;
+Console.CancelKeyPress += (_, _) => TerminalProgress.Clear();
 
 var app = new CommandApp();
 
