@@ -39,7 +39,7 @@
     <IsPublishable>False</IsPublishable>
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>CRACK</DefineConstants>
-    <Optimize Condition=" '$(Optimize)' == '' ">true</Optimize>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\AquaMai\AquaMai.Config.HeadlessLoader\AquaMai.Config.HeadlessLoader.csproj"/>
@@ -157,23 +157,11 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Locale.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-      <EmbeddedResource Remove="Properties\Resources.zh-hant.resx"/>
-      <EmbeddedResource Remove="Properties\Resources.zh-hans.resx"/>
-      <EmbeddedResource Remove="Launcher.zh-hant.resx"/>
-      <EmbeddedResource Remove="Launcher.zh-hans.resx"/>
-      <EmbeddedResource Remove="Browser.zh-hant.resx"/>
-      <EmbeddedResource Remove="Browser.zh-hans.resx"/>
       <EmbeddedResource Update="Locale.zh-hans.resx">
           <DependentUpon>Locale.resx</DependentUpon>
       </EmbeddedResource>
       <EmbeddedResource Update="Locale.zh-hant.resx">
           <DependentUpon>Locale.resx</DependentUpon>
       </EmbeddedResource>
-      <None Include="Resources\nopreview.acb">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Include="Resources\template.acb">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
   </ItemGroup>
 </Project>

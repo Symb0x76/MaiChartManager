@@ -11,7 +11,7 @@ namespace MaiChartManager;
 
 public class AppMain : ISingleInstance
 {
-    public const string Version = "1.6.0";
+    public const string Version = "1.6.1";
     public static Browser? BrowserWin { get; set; }
 
     private Launcher _launcher;
@@ -74,7 +74,7 @@ public class AppMain : ISingleInstance
                 // 首次启动，从系统语言检测
                 var systemCulture = System.Globalization.CultureInfo.CurrentUICulture;
                 var cultureName = systemCulture.Name;
-                
+
                 // 检测语言：简体中文、繁体中文、英文
                 if (cultureName.StartsWith("zh-CN") || cultureName.StartsWith("zh-Hans") || cultureName == "zh")
                 {
@@ -89,7 +89,7 @@ public class AppMain : ISingleInstance
                     // 非中文系统默认英文
                     StaticSettings.CurrentLocale = "en";
                 }
-                
+
                 StaticSettings.Config.Locale = StaticSettings.CurrentLocale;
                 // 保存配置
                 try
