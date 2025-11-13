@@ -33,10 +33,9 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
         string BundledAquaMaiVersion,
         bool IsJudgeDisplay4BInstalled,
         bool IsHidConflictExist,
-        AquaMaiSignatureV2.VerifyResult? Signature
+        AquaMaiSignatureV2.VerifyResult? Signature,
+        bool IsMmlLibInstalled
     );
-
-    private static readonly string[] HidModPaths = [@"Mods\Mai2InputMod.dll", @"Mods\hid_input_lib.dll", "hid_input_lib.dll", "mai2io.dll"];
 
     [HttpGet]
     public GameModInfo GetGameModInfo()
@@ -56,7 +55,7 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
             sig = AquaMaiSignatureV2.VerifySignature(System.IO.File.ReadAllBytes(ModPaths.AquaMaiDllInstalledPath));
         }
 
-        return new GameModInfo(IsMelonInstalled(), aquaMaiInstalled, aquaMaiVersion, aquaMaiBuiltinVersion!, GetIsJudgeDisplay4BInstalled(), GetIsHidConflictExist(), sig);
+        return new GameModInfo(IsMelonInstalled(), aquaMaiInstalled, aquaMaiVersion, aquaMaiBuiltinVersion!, GetIsJudgeDisplay4BInstalled(), GetIsHidConflictExist(), sig, GetIsMmlLibInstalled());
     }
 
     [NonAction]
@@ -67,6 +66,10 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
         var filesShouldBeInstalled = Directory.EnumerateFiles(judgeDisplay4BPath);
         return filesShouldBeInstalled.Select(file => Path.Combine(StaticSettings.SkinAssetsDir, Path.GetFileName(file))).All(System.IO.File.Exists);
     }
+
+    #region ADX HID 冲突检测和删除
+
+    private static readonly string[] HidModPaths = [@"Mods\Mai2InputMod.dll", @"Mods\hid_input_lib.dll", "hid_input_lib.dll", "mai2io.dll"];
 
     [NonAction]
     private static bool GetIsHidConflictExist()
@@ -91,6 +94,45 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
             {
                 FileSystem.DeleteFile(Path.Combine(StaticSettings.GamePath, mod), UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
             }
+        }
+    }
+
+    #endregion
+
+    [NonAction]
+    private static bool GetIsMmlLibInstalled()
+    {
+        if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, "ADXHIDIOMod.dll")))
+        {
+            return false;
+        }
+        if (!System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, @"Sinmai_Data\Plugins\hidapi.dll")))
+        {
+            return false;
+        }
+        if (!System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, @"Sinmai_Data\Plugins\libadxhid.dll")))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    [HttpPost]
+    public void InstallMmlLibs()
+    {
+        if (GetIsMmlLibInstalled()) return;
+        if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, "ADXHIDIOMod.dll")))
+        {
+            System.IO.File.Delete(Path.Combine(StaticSettings.GamePath, "ADXHIDIOMod.dll"));
+        }
+        if (!System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, @"Sinmai_Data\Plugins\hidapi.dll")))
+        {
+            System.IO.File.Copy(Path.Combine(StaticSettings.exeDir, @"hidapi.dll"), Path.Combine(StaticSettings.GamePath, @"Sinmai_Data\Plugins\hidapi.dll"));
+        }
+        if (!System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, @"Sinmai_Data\Plugins\libadxhid.dll")))
+        {
+            System.IO.File.Copy(Path.Combine(StaticSettings.exeDir, @"libadxhid.dll"), Path.Combine(StaticSettings.GamePath, @"Sinmai_Data\Plugins\libadxhid.dll"));
         }
     }
 

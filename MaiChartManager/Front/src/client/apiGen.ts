@@ -113,6 +113,7 @@ export interface GameModInfo {
   isJudgeDisplay4BInstalled?: boolean;
   isHidConflictExist?: boolean;
   signature?: VerifyResult;
+  isMmlLibInstalled?: boolean;
 }
 
 export interface GenreAddRequest {
@@ -1338,6 +1339,20 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     DeleteHidConflict: (params: RequestParams = {}) =>
       this.request<void, any>({
         path: `/MaiChartManagerServlet/DeleteHidConflictApi`,
+        method: "POST",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags Installation
+     * @name InstallMmlLibs
+     * @request POST:/MaiChartManagerServlet/InstallMmlLibsApi
+     */
+    InstallMmlLibs: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/MaiChartManagerServlet/InstallMmlLibsApi`,
         method: "POST",
         ...params,
       }),

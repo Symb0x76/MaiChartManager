@@ -364,7 +364,12 @@ mod:
     title: 社区贡献功能
     description: |-
       此功能由社区成员贡献，可能无法获得与核心功能相同级别的技术支持
-      如遇技术问题，我们会尽力协助，但可能无法提供即时支持
+      如遇技术问题，我们会尽力协调处理
+  mmlIo:
+    notInstalled: 依赖库未安装或存在冲突
+    oneClickInstall: 一键安装
+    installed: 已正确安装
+    installFailed: 安装 Maimoller 依赖库时出现错误
 tools:
   title: 工具
   audioConvert: 音频转换（ACB + AWB）

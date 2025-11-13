@@ -28,3 +28,6 @@ sectionNameEn:
   高级设置: Advanced Settings
   过新过热: Too New Too Hot
   不建议关闭: Not Recommend to Disable
+
+customPanelPosition:
+  GameSystem.MaimollerIO: top

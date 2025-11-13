@@ -21,7 +21,8 @@ const ConfigSection = defineComponent({
   setup(props, { emit }) {
     const { t, te } = useI18n();
 
-    const CustomPanel = getSectionPanelOverride(props.section.path!);
+    const CustomPanel = getSectionPanelOverride(props.section.path!)
+    const customPanelPosition: 'top' | 'bottom' | 'override' = comments.customPanelPosition[props.section.path!] || 'override';
     const comment = computed(() => {
       const localeKey = 'mod.commentOverrides.' + props.section.path!.replace(/\./g, '_');
       if (te(localeKey)) {
@@ -53,14 +54,16 @@ const ConfigSection = defineComponent({
           {comment.value}
         </NFlex>
       </NFormItem>}
-      {props.sectionState.enabled && (
-        CustomPanel ?
+      {props.sectionState.enabled && <>
+        {customPanelPosition === 'top' && <CustomPanel entryStates={props.entryStates} sectionState={props.sectionState} section={props.section}/>}
+        {(CustomPanel && customPanelPosition === 'override') ?
           <CustomPanel entryStates={props.entryStates} sectionState={props.sectionState} section={props.section}/> :
           !!props.section.entries?.length && <NFlex vertical class="p-l-15 max-[900px]:p-l-10 max-[500px]:p-l-5!">
             {props.section.entries?.filter(it => !it.attribute?.hideWhenDefault || (it.attribute?.hideWhenDefault && !props.entryStates[it.path!].isDefault))
               .map((entry) => <ConfigEntry key={entry.path!} entry={entry} entryState={props.entryStates[entry.path!]}/>)}
-          </NFlex>
-      )}
+          </NFlex>}
+        {customPanelPosition === 'bottom' && <CustomPanel entryStates={props.entryStates} sectionState={props.sectionState} section={props.section}/>}
+        </>}
     </NFlex>;
   },
 });
