@@ -282,4 +282,7 @@
     <data name="AquaMaiConfigCorrupted" xml:space="preserve">
       <value>AquaMai 設定檔似乎已經損壞</value>
     </data>
+    <data name="LauncherOpenToLanDesc" xml:space="preserve">
+      <value>開機自動以伺服器模式運作並最小化到托盤</value>
+    </data>
 </root>

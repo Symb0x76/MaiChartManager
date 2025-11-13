@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -34,6 +34,13 @@ public partial class Launcher : Form
         notifyIcon1.Visible = true;
         WindowState = FormWindowState.Minimized;
 # endif
+        comboBox1.SelectedIndex = StaticSettings.CurrentLocale switch
+        {
+            "zh" => 0,
+            "zh-TW" => 1,
+            "en" => 2,
+            _ => 2,
+        };
         if (!AppMain.IsFromStartup)
         {
             Visible = true;
@@ -260,5 +267,41 @@ public partial class Launcher : Form
     {
         textBoxLanAuthUser.Visible = checkBoxLanAuth.Checked;
         textBoxLanAuthPass.Visible = checkBoxLanAuth.Checked;
+    }
+
+    private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        switch (comboBox1.SelectedIndex)
+        {
+            case 0:
+                AppMain.SetLocale("zh");
+                break;
+            case 1:
+                AppMain.SetLocale("zh-TW");
+                break;
+            case 2:
+                AppMain.SetLocale("en");
+                break;
+        }
+
+        RefreshLocalizedTexts();
+    }
+
+    private void RefreshLocalizedTexts()
+    {
+        button1.Text = Locale.LauncherSelectGameDir;
+        button4.Text = Locale.LauncherExit;
+        label2.Text = Locale.LauncherGameDir;
+        checkBox1.Text = Locale.LauncherOpenToLan;
+        checkBox_startup.Text = Locale.LauncherStartup;
+        checkBoxLanAuth.Text = Locale.LauncherNeedLogin;
+        if (button2.Text == Locale.LauncherStop || button2.Text.Contains("Stop") || button2.Text.Contains("停止"))
+        {
+            button2.Text = Locale.LauncherStop;
+        }
+        else
+        {
+            button2.Text = Locale.LauncherStart;
+        }
     }
 }

@@ -532,6 +532,15 @@ namespace MaiChartManager {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Automatically run in server mode and minimize to the system tray upon startup..
+        /// </summary>
+        internal static string LauncherOpenToLanDesc {
+            get {
+                return ResourceManager.GetString("LauncherOpenToLanDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select Game Directory.
         /// </summary>
         internal static string LauncherSelectGameDir {

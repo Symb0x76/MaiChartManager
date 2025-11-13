@@ -290,4 +290,7 @@ If you notice any issues with the conversion result, you can try testing it in A
     <data name="AquaMaiConfigCorrupted" xml:space="preserve">
       <value>AquaMai configuration file appears corrupted...</value>
     </data>
+    <data name="LauncherOpenToLanDesc" xml:space="preserve">
+      <value>Automatically run in server mode and minimize to the system tray upon startup.</value>
+    </data>
 </root>
