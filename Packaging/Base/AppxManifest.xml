@@ -6,10 +6,11 @@
   xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build"
   xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
   IgnorableNamespaces="win32dependencies"
 >
-  <Identity Name="22369479C5405.MaiChartManager" Publisher="CN=86A51452-7790-46C3-9A4B-1207C2C97940" Version="1.6.0.0"
-    ProcessorArchitecture="x64" />
+  <Identity Name="22369479C5405.MaiChartManager" Publisher="CN=86A51452-7790-46C3-9A4B-1207C2C97940"
+    Version="1.7.0.0" ProcessorArchitecture="x64" />
   <Properties>
     <DisplayName>MaiChartManager</DisplayName>
     <PublisherDisplayName>凌莞</PublisherDisplayName>
@@ -20,7 +21,7 @@
       MaxVersionTested="10.0.22621.0" />
     <win32dependencies:ExternalDependency Name="Microsoft.WebView2"
       Publisher="CN=Microsoft Windows, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-      MinVersion="100.0.1185.39" Optional="true"/>
+      MinVersion="100.0.1185.39" Optional="true" />
   </Dependencies>
   <Resources>
     <Resource Language="zh-cn" />
@@ -38,11 +39,38 @@
         <uap:SplashScreen Image="SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <desktop:Extension Category="windows.startupTask" Executable="MaiChartManager.exe" EntryPoint="Windows.FullTrustApplication">
-            <desktop:StartupTask TaskId="MaiChartManagerStartupId" Enabled="false" DisplayName="MaiChartManager" />
+        <desktop:Extension Category="windows.startupTask" Executable="MaiChartManager.exe"
+          EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="MaiChartManagerStartupId" Enabled="false"
+            DisplayName="MaiChartManager" />
         </desktop:Extension>
       </Extensions>
     </Application>
+
+
+    <Application Id="CliTool"
+      Executable="MaiChartManager.CLI.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        AppListEntry="none"
+        DisplayName="MaiChartManager CLI"
+        Description="MaiChartManager Command line tool"
+        BackgroundColor="transparent"
+        Square150x150Logo="Square150x150Logo.png"
+        Square44x44Logo="Square44x44Logo.png">
+      </uap:VisualElements>
+
+      <Extensions>
+        <uap3:Extension Category="windows.appExecutionAlias">
+          <uap3:AppExecutionAlias>
+            <desktop:ExecutionAlias Alias="mcm.exe" />
+          </uap3:AppExecutionAlias>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+
+
+
   </Applications>
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />

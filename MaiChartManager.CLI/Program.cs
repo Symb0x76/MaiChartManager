@@ -1,4 +1,5 @@
 using System.Text;
+using MaiChartManager;
 using MaiChartManager.CLI.Commands;
 using MaiChartManager.CLI.Utils;
 using Spectre.Console.Cli;
@@ -6,11 +7,20 @@ using Spectre.Console.Cli;
 Console.OutputEncoding = Encoding.UTF8;
 Console.CancelKeyPress += (_, _) => TerminalProgress.Clear();
 
+AppMain.InitConfiguration(true);
+await IapManager.Init();
+
+if (IapManager.License != IapManager.LicenseStatus.Active)
+{
+    Console.WriteLine("命令行工具目前为赞助版功能，请先使用桌面版应用程序解锁");
+    return 1;
+}
+
 var app = new CommandApp();
 
 app.Configure(config =>
 {
-    config.SetApplicationName("MaiChartManager CLI");
+    config.SetApplicationName("mcm");
 
     config.AddCommand<MakeUsmCommand>("makeusm")
         .WithDescription("将视频文件转换为 USM 格式")

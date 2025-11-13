@@ -13,6 +13,7 @@
         <PublishTrimmed>False</PublishTrimmed>
         <PublishAot>False</PublishAot>
         <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishDir>..\Packaging\Pack</PublishDir>
     </PropertyGroup>
 
     <ItemGroup>

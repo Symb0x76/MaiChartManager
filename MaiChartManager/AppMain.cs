@@ -11,7 +11,7 @@ namespace MaiChartManager;
 
 public class AppMain : ISingleInstance
 {
-    public const string Version = "1.6.1";
+    public const string Version = "1.7.0";
     public static Browser? BrowserWin { get; set; }
 
     private Launcher _launcher;
@@ -24,23 +24,47 @@ public class AppMain : ISingleInstance
 
     public static ILogger GetLogger<T>() => _loggerFactory.CreateLogger<T>();
 
+    public static void InitConfiguration(bool noPopup = false)
+    {
+        SentrySdk.Init(o =>
+            {
+                // Tells which project in Sentry to send events to:
+                o.Dsn = "https://be7a9ae3a9a88f4660737b25894b3c20@sentry.c5y.moe/3";
+                // Set TracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+                // We recommend adjusting this value in production.
+                o.TracesSampleRate = 0.5;
+# if DEBUG
+                o.Environment = "development";
+# endif
+            }
+        );
+
+        var cfgFilePath = Path.Combine(StaticSettings.appData, "config.json");
+        if (File.Exists(cfgFilePath))
+        {
+            try
+            {
+                var cfg = JsonSerializer.Deserialize<Config>(File.ReadAllText(Path.Combine(StaticSettings.appData, "config.json")));
+                if (cfg == null)
+                {
+                    throw new Exception("config.json is null");
+                }
+                StaticSettings.Config = cfg;
+            }
+            catch (Exception e)
+            {
+                SentrySdk.CaptureException(e, s => s.TransactionName = "读取配置文件");
+                if (!noPopup)
+                    MessageBox.Show(Locale.ConfigCorrupted, Locale.ConfigCorruptedTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                File.Delete(cfgFilePath);
+            }
+        }
+    }
+
     public void Run()
     {
         try
         {
-            SentrySdk.Init(o =>
-                {
-                    // Tells which project in Sentry to send events to:
-                    o.Dsn = "https://be7a9ae3a9a88f4660737b25894b3c20@sentry.c5y.moe/3";
-                    // Set TracesSampleRate to 1.0 to capture 100% of transactions for tracing.
-                    // We recommend adjusting this value in production.
-                    o.TracesSampleRate = 0.5;
-# if DEBUG
-                    o.Environment = "development";
-# endif
-                }
-            );
-
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
             ApplicationConfiguration.Initialize();
             FFmpeg.SetExecutablesPath(StaticSettings.exeDir);
@@ -48,25 +72,7 @@ public class AppMain : ISingleInstance
 
             Directory.CreateDirectory(StaticSettings.appData);
             Directory.CreateDirectory(StaticSettings.tempPath);
-            var cfgFilePath = Path.Combine(StaticSettings.appData, "config.json");
-            if (File.Exists(cfgFilePath))
-            {
-                try
-                {
-                    var cfg = JsonSerializer.Deserialize<Config>(File.ReadAllText(Path.Combine(StaticSettings.appData, "config.json")));
-                    if (cfg == null)
-                    {
-                        throw new Exception("config.json is null");
-                    }
-                    StaticSettings.Config = cfg;
-                }
-                catch (Exception e)
-                {
-                    SentrySdk.CaptureException(e, s => s.TransactionName = "读取配置文件");
-                    MessageBox.Show(Locale.ConfigCorrupted, Locale.ConfigCorruptedTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    File.Delete(cfgFilePath);
-                }
-            }
+            InitConfiguration();
 
             // 初始化语言设置
             if (StaticSettings.Config.Locale == null)
@@ -91,16 +97,6 @@ public class AppMain : ISingleInstance
                 }
 
                 StaticSettings.Config.Locale = StaticSettings.CurrentLocale;
-                // 保存配置
-                try
-                {
-                    var json = JsonSerializer.Serialize(StaticSettings.Config, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(cfgFilePath, json);
-                }
-                catch (Exception e)
-                {
-                    _loggerFactory.CreateLogger<AppMain>().LogError(e, "保存配置文件失败");
-                }
             }
             else
             {
