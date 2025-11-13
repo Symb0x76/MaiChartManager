@@ -128,6 +128,11 @@ music:
       B15, otherwise in B35. This value also controls the order when sorting by
       release date.
     idConflictWarning: ID conflicts in following directories
+    confirmSetMovie: Confirm to replace current PV with {filename}?
+    replaceChart: Replace Chart
+    replaceChartConfirm: Confirm to replace {level}?
+    replaceChartFailed: Failed to replace chart
+    replaceChartSuccess: Chart replaced successfully
   batch:
     title: Batch Actions
     batchAndSearch: Batch Actions & Search
@@ -380,6 +385,26 @@ mod:
     verifiedCI: Verified official AquaMai CI build
     notFound: This AquaMai has no valid signature, likely not an official version
     invalid: This AquaMai has an invalid signature, likely not an official version
+    verifiedOld: Verified official AquaMai legacy version
+  manualInstall:
+    invalidAquaMaiFile: Invalid AquaMai DLL
+    invalidAquaMaiFileMessage: Drag and drop a valid AquaMai.dll here to install it
+    checkFailed: Error occurred while checking AquaMai drag and drop
+    confirmInstallTitle: Install this AquaMai.dll?
+    version: Version
+    buildDate: Build Date
+    installFailed: Failed to manually install AquaMai
+    installSuccess: Installation successful
+  community:
+    title: Community Contributed Features
+    description: |-
+      This feature is contributed by community members and may not receive the same level of technical support as core features
+      We will do our best to coordinate and handle technical issues if they arise
+  mmlIo:
+    notInstalled: Dependencies not installed or conflicts exist
+    oneClickInstall: One-Click Install
+    installed: Correctly installed
+    installFailed: Error occurred while installing Maimoller dependencies
 tools:
   title: Tools
   audioConvert: Audio Convert (ACB + AWB)

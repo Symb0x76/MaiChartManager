@@ -121,6 +121,11 @@ music:
       如果遊戲版本是 1.{gameVersion} 的話，這裡的數字大於等於 {b15ver} 就會讓歌出現在 B15 裡面，否則就會出現在 B35
       裡面。這個值還會控制按上線時間排序時的順序
     idConflictWarning: 以下目錄中存在衝突的 ID
+    confirmSetMovie: 確認要使用 {filename} 替換目前的 PV 嗎
+    replaceChart: 替換譜面
+    replaceChartConfirm: 確認要替換 {level} 譜面嗎？
+    replaceChartFailed: 替換譜面失敗
+    replaceChartSuccess: 替換譜面成功
   batch:
     title: 批次操作
     batchAndSearch: 批次操作與搜尋
@@ -345,6 +350,26 @@ mod:
     verifiedCI: 已驗證的 AquaMai 官方持續整合建置
     notFound: 這個 AquaMai 沒有有效的簽章，很可能不是官方版本
     invalid: 這個 AquaMai 的簽章無效，很可能不是官方版本
+    verifiedOld: 已驗證的 AquaMai 官方歷史版本
+  manualInstall:
+    invalidAquaMaiFile: 無效的 AquaMai DLL
+    invalidAquaMaiFileMessage: 拖放有效的 AquaMai.dll 到這裡來安裝它
+    checkFailed: 檢測 AquaMai 拖放時遇到錯誤
+    confirmInstallTitle: 安裝這個 AquaMai.dll 嗎？
+    version: 版本
+    buildDate: 建置日期
+    installFailed: 手動安裝 AquaMai 失敗
+    installSuccess: 安裝成功
+  community:
+    title: 社群貢獻功能
+    description: |-
+      此功能由社群成員貢獻，可能無法獲得與核心功能相同級別的技術支援
+      如遇技術問題，我們會盡力協調處理
+  mmlIo:
+    notInstalled: 依賴庫未安裝或存在衝突
+    oneClickInstall: 一鍵安裝
+    installed: 已正確安裝
+    installFailed: 安裝 Maimoller 依賴庫時出現錯誤
 tools:
   title: 工具
   audioConvert: 音訊轉換（ACB + AWB）
