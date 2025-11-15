@@ -102,7 +102,7 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
     [NonAction]
     private static bool GetIsMmlLibInstalled()
     {
-        if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, "ADXHIDIOMod.dll")))
+        if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, @"Mods\ADXHIDIOMod.dll")))
         {
             return false;
         }
@@ -122,9 +122,9 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
     public void InstallMmlLibs()
     {
         if (GetIsMmlLibInstalled()) return;
-        if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, "ADXHIDIOMod.dll")))
+        if (System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, @"Mods\ADXHIDIOMod.dll")))
         {
-            System.IO.File.Delete(Path.Combine(StaticSettings.GamePath, "ADXHIDIOMod.dll"));
+            System.IO.File.Delete(Path.Combine(StaticSettings.GamePath, @"Mods\ADXHIDIOMod.dll"));
         }
         if (!System.IO.File.Exists(Path.Combine(StaticSettings.GamePath, @"Sinmai_Data\Plugins\hidapi.dll")))
         {
