@@ -174,7 +174,9 @@ public class InstallationController(StaticSettings settings, ILogger<Installatio
         var src = Path.Combine(StaticSettings.exeDir, "AquaMai.dll");
         var dest = Path.Combine(StaticSettings.GamePath, @"Mods\AquaMai.dll");
         Directory.CreateDirectory(Path.GetDirectoryName(dest));
-        FileSystem.CopyFile(src, dest, true);
+        using var read = System.IO.File.OpenRead(src);
+        using var write = System.IO.File.Open(dest, FileMode.Create);
+        read.CopyTo(write);
     }
 
     [HttpPost]
