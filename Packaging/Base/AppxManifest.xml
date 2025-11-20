@@ -10,7 +10,7 @@
   IgnorableNamespaces="win32dependencies"
 >
   <Identity Name="22369479C5405.MaiChartManager" Publisher="CN=86A51452-7790-46C3-9A4B-1207C2C97940"
-    Version="1.7.1.0" ProcessorArchitecture="x64" />
+    Version="1.7.2.0" ProcessorArchitecture="x64" />
   <Properties>
     <DisplayName>MaiChartManager</DisplayName>
     <PublisherDisplayName>凌莞</PublisherDisplayName>
@@ -51,8 +51,8 @@
     <Application Id="CliTool"
       Executable="MaiChartManager.CLI.exe"
       EntryPoint="Windows.FullTrustApplication">
-        <!-- AppListEntry="none" -->
       <uap:VisualElements
+        AppListEntry="none"
         DisplayName="MaiChartManager CLI"
         Description="MaiChartManager Command line tool"
         BackgroundColor="transparent"
