@@ -56,8 +56,8 @@
         DisplayName="MaiChartManager CLI"
         Description="MaiChartManager Command line tool"
         BackgroundColor="transparent"
-        Square150x150Logo="Square150x150Logo.png"
-        Square44x44Logo="Square44x44Logo.png">
+        Square150x150Logo="CLI_Square150x150Logo.png"
+        Square44x44Logo="CLI_Square44x44Logo.png">
       </uap:VisualElements>
 
       <Extensions>

@@ -67,6 +67,7 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
         }
         catch (Exception ex)
         {
+            SentrySdk.CaptureException(ex);
             AnsiConsole.MarkupLine($"[red]✗ 错误: {ex.Message}[/]");
             return 1;
         }
@@ -139,6 +140,7 @@ public class MakeAcbCommand : AsyncCommand<MakeAcbCommand.Settings>
                     }
                     catch (Exception ex)
                     {
+                        SentrySdk.CaptureException(ex);
                         errorCount++;
                         task.Description = $"[red]{Path.GetFileName(source)} - 失败[/]";
                         task.StopTask();
