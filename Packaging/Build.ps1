@@ -1,4 +1,4 @@
-param(
+﻿param(
     [ValidateSet("Release", "Canary")]
     [string]$Mode = "Release",
 
