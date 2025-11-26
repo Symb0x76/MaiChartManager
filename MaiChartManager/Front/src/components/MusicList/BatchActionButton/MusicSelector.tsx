@@ -7,7 +7,6 @@ import { GenreOption } from "@/components/GenreInput";
 import { LEVEL_COLOR, LEVELS } from "@/consts";
 import _ from "lodash";
 import { watchDebounced } from "@vueuse/core";
-import { dxdata } from '@gekichumai/dxdata';
 import { useI18n } from 'vue-i18n';
 
 export default defineComponent({
@@ -29,7 +28,6 @@ export default defineComponent({
         return row.name!.toLowerCase().includes(value) ||
           row.artist!.toLowerCase().includes(value) ||
           row.charts!.some(chart => chart.designer?.toLowerCase().includes(value)) ||
-          dxdata.songs.find(it => it.title.toLowerCase() === row.name?.toLowerCase())?.searchAcronyms?.some(acronym => acronym.toLowerCase().includes(value)) ||
           row.id!.toString().includes(value) || // match by ID
           false;
 
