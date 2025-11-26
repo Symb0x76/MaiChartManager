@@ -72,7 +72,7 @@ Write-Host "Building AquaMai..." -ForegroundColor Cyan
 Push-Location "$ProjectRoot\AquaMai"
 try {
     Stop-Process -Name "dotnet" -Force -ErrorAction SilentlyContinue
-    dotnet cake
+    ./build.ps1
     
     $TargetResDir = "$ProjectRoot\MaiChartManager\Resources"
     if (-not (Test-Path $TargetResDir)) { New-Item -ItemType Directory -Path $TargetResDir }

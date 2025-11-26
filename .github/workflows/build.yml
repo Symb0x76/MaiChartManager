@@ -17,6 +17,39 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+        submodules: recursive
+
+    - name: Checkout Assets
+      uses: clansty/checkout@main
+      with:
+        repository: MuNET-OSS/AquaMai-Build-Assets
+        token: ${{ secrets.BUILD_ASSETS_PAT }}
+        path: build-assets
+        max-attempts: 50
+        min-retry-interval: 1
+        max-retry-interval: 5
+
+    - name: Copy Assets
+      shell: powershell
+      run: |
+        Write-Host "Copying assets..."
+        Copy-Item -Path "build-assets/SDEZ/*" -Destination "AquaMai/Libs/" -Recurse -Force
+
+    - name: Setup Nuget
+      run: |
+        dotnet nuget list source
+        if (-not (dotnet nuget list source | Select-String "nuget.org")) {
+            dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+        }
+
+    - name: Install Frontend Dependencies
+      shell: powershell
+      run: |
+        corepack enable
+        Push-Location MaiChartManager\Front
+        pnpm install
+        Pop-Location
+
 
     - name: Build
       shell: powershell
