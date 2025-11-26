@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using SingleInstanceCore;
 using System.Text.Json;
@@ -12,7 +12,7 @@ namespace MaiChartManager;
 
 public class AppMain : ISingleInstance
 {
-    public const string Version = "1.7.2";
+    public const string Version = "1.7.2.1";
     public static Browser? BrowserWin { get; set; }
 
     private Launcher _launcher;
@@ -203,3 +203,12 @@ public class AppMain : ISingleInstance
         System.IO.File.WriteAllText(cfgFilePath, json);
     }
 }
+
+
+
+
+
+
+
+
+

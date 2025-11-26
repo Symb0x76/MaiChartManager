@@ -34,9 +34,10 @@
     <IsPublishable>True</IsPublishable>
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants/>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Crack|x64' ">
-    <IsPublishable>False</IsPublishable>
+    <IsPublishable>True</IsPublishable>
     <PlatformTarget>x64</PlatformTarget>
     <DefineConstants>CRACK</DefineConstants>
     <Optimize>true</Optimize>

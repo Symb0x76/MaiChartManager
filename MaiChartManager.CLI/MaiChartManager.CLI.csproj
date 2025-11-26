@@ -14,6 +14,13 @@
         <PublishAot>False</PublishAot>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishDir>..\Packaging\Pack</PublishDir>
+        <Configurations>Debug;Release;Crack</Configurations>
+        <Platforms>AnyCPU</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Crack|x64' ">
+        <DefineConstants>CRACK</DefineConstants>
+        <Optimize>true</Optimize>
     </PropertyGroup>
 
     <ItemGroup>
