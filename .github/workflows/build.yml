@@ -56,3 +56,30 @@ jobs:
       run: |
         .\Packaging\Build.ps1 -Mode Canary
 
+    - name: Upload to Alist
+      shell: powershell
+      env:
+        ALIST_TOKEN: ${{ secrets.ALIST_TOKEN }}
+      run: |
+        $alistUrl = "https://alist.c5y.moe"
+        
+        # 找到构建产物
+        $appxFile = Get-ChildItem -Path "Packaging" -Filter "MaiChartManager_Canary_*.appx" | Select-Object -First 1
+        if (-not $appxFile) {
+            throw "No appx file found!"
+        }
+        
+        Write-Host "Uploading $($appxFile.Name)..."
+        
+        # 上传文件
+        $remotePath = "/SBGA/MaiChartManager Canary/$($appxFile.Name)"
+        $encodedPath = [System.Uri]::EscapeDataString($remotePath)
+        
+        $headers = @{
+            "Authorization" = $env:ALIST_TOKEN
+            "File-Path" = $encodedPath
+        }
+        
+        Invoke-RestMethod -Uri "$alistUrl/api/fs/put" -Method Put -InFile $appxFile.FullName -Headers $headers
+        
+        Write-Host "Upload complete: $remotePath"
