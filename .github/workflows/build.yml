@@ -83,3 +83,17 @@ jobs:
         Invoke-RestMethod -Uri "$alistUrl/api/fs/put" -Method Put -InFile $appxFile.FullName -Headers $headers
         
         Write-Host "Upload complete: $remotePath"
+
+    - name: Update AppInstaller Config
+      shell: powershell
+      run: |
+        # 1. 获取构建好的 Appx 文件名来提取版本号
+        $appxFile = Get-ChildItem -Path "Packaging" -Filter "MaiChartManager_Canary_*.appx" | Select-Object -First 1
+        if (-not $appxFile) { throw "Appx file not found for version extraction!" }
+        
+        # 2. 提取版本号 (假设文件名格式为 MaiChartManager_Canary_1.2.3.4.appx)
+        $version = $appxFile.Name -replace 'MaiChartManager_Canary_', '' -replace '.appx', ''
+        Write-Host "Detected Version: $version"
+        
+        # 3. 执行更新脚本
+        & "D:\sign\mcm-canary-update.ps1" -Version $version
