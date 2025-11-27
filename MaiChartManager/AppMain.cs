@@ -12,7 +12,7 @@ namespace MaiChartManager;
 
 public class AppMain : ISingleInstance
 {
-    public const string Version = "1.7.2.1";
+    public const string Version = "1.7.2.7";
     public static Browser? BrowserWin { get; set; }
 
     private Launcher _launcher;
@@ -203,6 +203,7 @@ public class AppMain : ISingleInstance
         System.IO.File.WriteAllText(cfgFilePath, json);
     }
 }
+
 
 
 
