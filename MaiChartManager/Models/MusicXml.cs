@@ -457,7 +457,13 @@ public partial class MusicXml
         set
         {
             Modified = true;
-            RootNode.SelectSingleNode("longMusic").InnerText = value ? "1" : "0";
+            var node = RootNode.SelectSingleNode("longMusic");
+            if (node == null)
+            {
+                node = RootNode.OwnerDocument.CreateElement("longMusic");
+                RootNode.AppendChild(node);
+            }
+            node.InnerText = value ? "1" : "0";
         }
     }
 
