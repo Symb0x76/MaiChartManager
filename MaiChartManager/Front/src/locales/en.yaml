@@ -322,6 +322,7 @@ mod:
     button3Desc: Downward triangle button
     button4: Button 4
     button4Desc: Bottom round button
+    select: Select
   touchSensitivity:
     applyPresetToGlobal: Apply Preset to Global
     settingsFor: '{area} Sensitivity Settings'
@@ -378,7 +379,9 @@ mod:
   resetToDefault: Reset to default settings
   configVersionHigher: Config file version higher than AquaMai version
   aquaMaiSignatureVerificationFailed: AquaMai signature verification failed
-  aquaMaiSignatureVerificationFailedMessage: Unable to verify AquaMai is from official source. Loading config requires executing code in it, which may pose security risks.
+  aquaMaiSignatureVerificationFailedMessage: >-
+    Unable to verify AquaMai is from official source. Loading config requires
+    executing code in it, which may pose security risks.
   loadConfigIgnoreSignature: Ignore signature verification and load
   signature:
     verifiedOfficial: Verified official AquaMai version
@@ -397,9 +400,12 @@ mod:
     installSuccess: Installation successful
   community:
     title: Community Contributed Features
-    description: |-
-      This feature is contributed by community members and may not receive the same level of technical support as core features
-      We will do our best to coordinate and handle technical issues if they arise
+    description: >-
+      This feature is contributed by community members and may not receive the
+      same level of technical support as core features
+
+      We will do our best to coordinate and handle technical issues if they
+      arise
   mmlIo:
     notInstalled: Dependencies not installed or conflicts exist
     oneClickInstall: One-Click Install

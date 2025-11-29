@@ -298,6 +298,7 @@ mod:
     button3Desc: 向下的三角鍵
     button4: 按鍵 4
     button4Desc: 最下方的圓形按鍵
+    select: 選擇
   touchSensitivity:
     applyPresetToGlobal: 套用預設到全域
     settingsFor: '{area} 的靈敏度設定'
