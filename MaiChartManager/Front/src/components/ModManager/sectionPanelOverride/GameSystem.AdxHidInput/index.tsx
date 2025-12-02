@@ -13,9 +13,10 @@ export default defineComponent({
   setup(props, { emit }) {
     const load = ref(false)
     const { t } = useI18n();
-    
+
     const options = [
       { label: t('mod.adxHid.disabled'), value: 'None' },
+      { label: t('mod.adxHid.select'), value: 'Select' },
       { label: t('mod.adxHid.select1P'), value: 'Select1P' },
       { label: t('mod.adxHid.select2P'), value: 'Select2P' },
       { label: t('mod.adxHid.service'), value: 'Service' },
