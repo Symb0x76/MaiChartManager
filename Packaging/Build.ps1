@@ -43,8 +43,7 @@ Write-Host "Target Version: $BuildVersion" -ForegroundColor Green
 # Canary 模式使用完整的 4 段版本号 ($BuildVersion)
 # Release 模式使用 3 段版本号 ($baseVer)
 Write-Host "Updating C# source version..." -ForegroundColor Cyan
-$AppMainPath = "$ProjectRoot\MaiChartManager\AppMain.cs"
-$AppMainContent = Get-Content $AppMainPath -Raw
+$AppMainPath = "$ProjectRoot\MaiChartManager\AppMain.g.cs"
 
 if ($Mode -eq "Canary") {
     $SourceVersion = $BuildVersion
@@ -52,7 +51,15 @@ if ($Mode -eq "Canary") {
     $SourceVersion = $baseVer
 }
 
-$AppMainContent = $AppMainContent -replace 'public const string Version = "[^"]+"', "public const string Version = ""$SourceVersion"""
+$AppMainContent = @"
+    // Auto-generated file. Do not modify manually.
+    namespace MaiChartManager;
+
+    public partial class AppMain
+    {
+        public const string Version = "$SourceVersion";
+    }
+"@
 Set-Content $AppMainPath $AppMainContent -Encoding UTF8
 
 
