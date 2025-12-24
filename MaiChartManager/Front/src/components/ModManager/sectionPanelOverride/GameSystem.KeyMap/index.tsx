@@ -49,6 +49,26 @@ export default defineComponent({
         </NGridItem>
       </NGrid>
       <NFlex vertical class="p-l-15">
+        {props.section.entries?.some(it=>it.path === 'GameSystem.KeyMap.DisableIO4_1P') &&
+          <NFormItem label={t('mod.keyMap.disableIO4')} labelPlacement="left" labelWidth="9em" showFeedback={false}>
+            <NFlex vertical class="w-full ws-pre-line">
+              <div class='flex gap-4 h-34px items-center'>
+                <div class="flex items-center gap-2">
+                  <NSwitch v-model:value={props.entryStates['GameSystem.KeyMap.DisableIO4_1P'].value}/>
+                  1P
+                </div>
+                <div class="flex items-center gap-2">
+                  <NSwitch v-model:value={props.entryStates['GameSystem.KeyMap.DisableIO4_2P'].value}/>
+                  2P
+                </div>
+                <div class="flex items-center gap-2">
+                  <NSwitch v-model:value={props.entryStates['GameSystem.KeyMap.DisableIO4System'].value}/>
+                  {t('mod.keyMap.disableIO4System')}
+                </div>
+              </div>
+              {t('mod.keyMap.disableIO4Tip')}
+            </NFlex>
+          </NFormItem>}
         {props.section.entries?.filter(it=>
           ['GameSystem.KeyMap.Autoplay','GameSystem.KeyMap.DisableIO4','GameSystem.KeyMap.DisableDebugInput','GameSystem.KeyMap.DisableDebugFeatureHotkeys']
           .includes(it.path!))

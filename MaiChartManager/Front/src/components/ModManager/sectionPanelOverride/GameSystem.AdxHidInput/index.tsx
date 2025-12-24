@@ -1,12 +1,14 @@
 import { defineComponent, PropType, ref, computed, h } from 'vue';
-import { IEntryState, ISectionState } from "@/client/apiGen";
+import { IEntryState, ISectionState, Section } from "@/client/apiGen";
 import { NButton, NFlex, NFormItem, NGrid, NGridItem, NSelect } from "naive-ui";
 import api from "@/client/api";
 import { modInfo, updateModInfo } from "@/store/refs";
 import { useI18n } from 'vue-i18n';
+import ConfigEntry from '../../ConfigEntry';
 
 export default defineComponent({
   props: {
+    section: { type: Object as PropType<Section>, required: true },
     entryStates: { type: Object as PropType<Record<string, IEntryState>>, required: true },
     sectionState: { type: Object as PropType<ISectionState>, required: true },
   },
@@ -15,12 +17,12 @@ export default defineComponent({
     const { t } = useI18n();
 
     const options = [
-      { label: t('mod.adxHid.disabled'), value: 'None' },
-      { label: t('mod.adxHid.select'), value: 'Select' },
-      { label: t('mod.adxHid.select1P'), value: 'Select1P' },
-      { label: t('mod.adxHid.select2P'), value: 'Select2P' },
-      { label: t('mod.adxHid.service'), value: 'Service' },
-      { label: t('mod.adxHid.test'), value: 'Test' },
+      { label: t('mod.ioKeyMap.disabled'), value: 'None' },
+      { label: t('mod.ioKeyMap.select'), value: 'Select' },
+      { label: t('mod.ioKeyMap.select1P'), value: 'Select1P' },
+      { label: t('mod.ioKeyMap.select2P'), value: 'Select2P' },
+      { label: t('mod.ioKeyMap.service'), value: 'Service' },
+      { label: t('mod.ioKeyMap.test'), value: 'Test' },
     ];
 
     const del = async () => {
@@ -72,6 +74,12 @@ export default defineComponent({
           </NFlex>
         </NGridItem>
       </NGrid>
+      <NFlex vertical class="p-l-3">
+        {props.section.entries?.filter(it=>
+          ['GameSystem.AdxHidInput.DisableButtons']
+          .includes(it.path!))
+          .map((entry) => <ConfigEntry key={entry.path!} entry={entry} entryState={props.entryStates[entry.path!]}/>)}
+      </NFlex>
     </NFlex>
   },
 });

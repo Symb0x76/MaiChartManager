@@ -338,7 +338,7 @@ mod:
     GameSettings_TouchSensitivity: |
       使用自訂的觸控靈敏度
       這裡啟用之後 Test 裡的設定就不再起作用了，不過還是可以使用 Test 測試（使用測試需要關閉 1P 模式）
-      如果你的手台有對應的上位機，建議使用上位機調整
+      如果你的手台有對應的上位機，建議關閉本選項並使用上位機調整
   configCorrupted: AquaMai 設定檔損壞
   configCorruptedMessage: 請手動檢查 AquaMai.toml 並嘗試修復可能的問題
   resetToDefault: 重設回預設設定

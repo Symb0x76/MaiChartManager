@@ -281,12 +281,14 @@ mod:
   availableVersion: 可安装
   killGameProcess: 关闭游戏进程
   needInstallOrUpdate: AquaMai 未安装或需要更新
-  adxHid:
+  ioKeyMap:
     disabled: 禁用
+    select: 选择
     select1P: 1P 选择
     select2P: 2P 选择
     service: 服务
     test: 测试
+  adxHid:
     conflictDetected: 检测到冲突的 Mod
     oneClickDelete: 一键删除
     noConflict: 没有检测到冲突
@@ -298,7 +300,6 @@ mod:
     button3Desc: 向下的三角键
     button4: 按键 4
     button4Desc: 最下方的圆形按键
-    select: 选择
   touchSensitivity:
     applyPresetToGlobal: 应用预设到全局
     settingsFor: '{area} 的灵敏度设置'
@@ -317,6 +318,9 @@ mod:
     button2P: 2P 按键 {index}
     select1P: 1P 选择键
     select2P: 2P 选择键
+    disableIO4: 禁用 IO4 输入
+    disableIO4Tip: 开关打开为禁用对应输入。在禁用 IO4 输入后，你的兼容 IO4 板或 segatools IO4 模拟将被忽略。
+    disableIO4System: 系统按键（测试、服务）
   soundChannel:
     P1SpeakerLeft: 1P 外放左
     P1SpeakerRight: 1P 外放右
@@ -338,7 +342,7 @@ mod:
     GameSettings_TouchSensitivity: |
       使用自定义的触摸灵敏度
       这里启用之后 Test 里的设置就不再起作用了，不过还是可以使用 Test 测试（使用测试需要关闭 1P 模式）
-      如果你的手台有对应的上位机，建议使用上位机调整
+      如果你的手台有对应的上位机，建议关闭本选项并使用上位机调整
   configCorrupted: AquaMai 配置文件损坏
   configCorruptedMessage: 请手动检查 AquaMai.toml 并尝试修复可能的问题
   resetToDefault: 重置回默认设置
@@ -371,6 +375,19 @@ mod:
     oneClickInstall: 一键安装
     installed: 已正确安装
     installFailed: 安装 Maimoller 依赖库时出现错误
+    button1: 按钮 1（三角形）
+    button2: 按钮 2（圆形）
+    button3: 按钮 3（圆形）
+    button4: 按钮 4（圆形）
+    Touch1p: 1P 触屏
+    Touch2p: 2P 触屏
+    Button1p: 1P 按键
+    Button2p: 2P 按键
+    Led1p: 1P 灯光
+    Led2p: 2P 灯光
+    P1: 启用 1P
+    P2: 启用 2P
+    tip: 如果混用 Maimoller 与其他协议，请对不是 Maimoller 的一侧禁用
 tools:
   title: 工具
   audioConvert: 音频转换（ACB + AWB）

@@ -24,5 +24,11 @@
         "MaiChartManager/Front/src/locales"
     ],
     "i18n-ally.sourceLanguage": "zh",
-    "i18n-ally.keystyle": "nested"
+    "i18n-ally.keystyle": "nested",
+    "favorites.resources": [
+        {
+            "filePath": "MaiChartManager\\Front\\package.json",
+            "group": "Default"
+        }
+    ]
 }

@@ -30,5 +30,4 @@ sectionNameEn:
   过新过热: Too New Too Hot
   不建议关闭: Not Recommend to Disable
 
-customPanelPosition:
-  GameSystem.MaimollerIO: top
+customPanelPosition: {}

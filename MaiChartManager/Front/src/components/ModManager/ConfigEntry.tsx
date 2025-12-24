@@ -18,12 +18,12 @@ export default defineComponent({
     const { t, te } = useI18n();
 
     const optionsIoKeyMap = [
-      { label: t('mod.adxHid.disabled'), value: 'None' },
-      { label: t('mod.adxHid.select'), value: 'Select' },
-      { label: t('mod.adxHid.select1P'), value: 'Select1P' },
-      { label: t('mod.adxHid.select2P'), value: 'Select2P' },
-      { label: t('mod.adxHid.service'), value: 'Service' },
-      { label: t('mod.adxHid.test'), value: 'Test' },
+      { label: t('mod.ioKeyMap.disabled'), value: 'None' },
+      { label: t('mod.ioKeyMap.select'), value: 'Select' },
+      { label: t('mod.ioKeyMap.select1P'), value: 'Select1P' },
+      { label: t('mod.ioKeyMap.select2P'), value: 'Select2P' },
+      { label: t('mod.ioKeyMap.service'), value: 'Service' },
+      { label: t('mod.ioKeyMap.test'), value: 'Test' },
     ];
 
     const optionsSoundChannel = ['None', 'P1SpeakerLeft', 'P1SpeakerRight', 'P1HeadphoneLeft', 'P1HeadphoneRight', 'P2SpeakerLeft', 'P2SpeakerRight', 'P2HeadphoneLeft', 'P2HeadphoneRight']
