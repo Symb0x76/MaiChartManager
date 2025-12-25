@@ -317,6 +317,9 @@ mod:
     button2P: 2P 按鍵 {index}
     select1P: 1P 選擇鍵
     select2P: 2P 選擇鍵
+    disableIO4: 停用 IO4 輸入
+    disableIO4Tip: 開關打開為停用對應輸入。在停用 IO4 輸入後，你的兼容 IO4 板或 segatools IO4 模擬將被忽略。
+    disableIO4System: 系統按鍵（測試、服務）
   soundChannel:
     P1SpeakerLeft: 1P 外放左
     P1SpeakerRight: 1P 外放右
@@ -330,6 +333,8 @@ mod:
   judgeAccuracyInfo:
     author: 作者：
     viewDoc: 檢視說明檔案
+  trackCamouflage:
+    viewDoc: 檢視設定說明
   commentOverrides:
     Fancy_GamePlay_JudgeDisplay4B: |
       更精細的判定表示
@@ -371,6 +376,19 @@ mod:
     oneClickInstall: 一鍵安裝
     installed: 已正確安裝
     installFailed: 安裝 Maimoller 依賴庫時出現錯誤
+    button1: 按鈕 1（三角形）
+    button2: 按鈕 2（圓形）
+    button3: 按鈕 3（圓形）
+    button4: 按鈕 4（圓形）
+    Touch1p: 1P 觸屏
+    Touch2p: 2P 觸屏
+    Button1p: 1P 按鍵
+    Button2p: 2P 按鍵
+    Led1p: 1P 燈光
+    Led2p: 2P 燈光
+    P1: 啟用 1P
+    P2: 啟用 2P
+    tip: 如果混用 Maimoller 與其他協議，請對不是 Maimoller 的一侧停用
 tools:
   title: 工具
   audioConvert: 音訊轉換（ACB + AWB）
