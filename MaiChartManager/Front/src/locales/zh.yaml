@@ -334,6 +334,8 @@ mod:
   judgeAccuracyInfo:
     author: 作者：
     viewDoc: 查看说明文件
+  trackCamouflage:
+    viewDoc: 查看配置说明
   commentOverrides:
     Fancy_GamePlay_JudgeDisplay4B: |
       更精细的判定表示
