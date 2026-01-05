@@ -1,4 +1,5 @@
-﻿using Microsoft.Web.WebView2.Core;
+using System.Diagnostics;
+using Microsoft.Web.WebView2.Core;
 using OSVersionExtension;
 using WinBlur;
 
@@ -50,6 +51,13 @@ public sealed partial class Browser : Form
         // webView21.CoreWebView2.WebResourceRequested += OnWebResourceRequested;
 
         webView21.CoreWebView2.PermissionRequested += webView21_PermissionRequested;
+        webView21.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
+    }
+
+    private void CoreWebView2_NewWindowRequested(object? sender, CoreWebView2NewWindowRequestedEventArgs e)
+    {
+        e.Handled = true;
+        Process.Start(new ProcessStartInfo(e.Uri) { UseShellExecute = true });
     }
 
     private async void OnWebResourceRequested(object? sender, CoreWebView2WebResourceRequestedEventArgs args)
