@@ -1,5 +1,6 @@
 ﻿using System.IO.Compression;
 using System.Text;
+using MaiChartManager.Models;
 using MaiChartManager.Utils;
 using MaiLib;
 using Microsoft.AspNetCore.Mvc;
@@ -17,6 +18,20 @@ namespace MaiChartManager.Controllers.Music;
 public class MusicTransferController(StaticSettings settings, ILogger<MusicTransferController> logger) : ControllerBase
 {
     public record RequestCopyToRequest(MusicBatchController.MusicIdAndAssetDirPair[] music, bool removeEvents, bool legacyFormat);
+
+    private static int[] GetAudioCandidateIds(MusicXmlWithABJacket music)
+    {
+        return [music.CueId, music.Id, music.NonDxId];
+    }
+
+    private static string BuildAudioResolveErrorMessage(MusicXmlWithABJacket music)
+    {
+        var candidates = string.Join(", ", GetAudioCandidateIds(music)
+            .Select(it => (int)(Math.Abs((long)it) % 10000))
+            .Distinct()
+            .Select(it => it.ToString("000000")));
+        return $"Failed to resolve audio ACB/AWB for music {music.Id} ({music.Name}), cueId={music.CueId:000000}, nonDxId={music.NonDxId:000000}, candidates=[{candidates}].";
+    }
 
     [HttpPost]
     [Route("/MaiChartManagerServlet/[action]Api")]
@@ -50,6 +65,12 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
             var musicId = request.music[i];
             var music = settings.GetMusic(musicId.Id, musicId.AssetDir);
             if (music is null) continue;
+            var musicDir = Path.GetDirectoryName(music.FilePath);
+            if (string.IsNullOrWhiteSpace(musicDir) || !Directory.Exists(musicDir))
+            {
+                logger.LogWarning("Skip export for music {musicId}: invalid source directory from file path {filePath}", music.Id, music.FilePath);
+                continue;
+            }
             if (progress?.IsCancelled ?? false)
             {
                 break;
@@ -63,7 +84,7 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
 
             // copy music
             Directory.CreateDirectory(Path.Combine(dest, "music"));
-            FileSystem.CopyDirectory(Path.GetDirectoryName(music.FilePath), Path.Combine(dest, $@"music\music{music.Id:000000}"), UIOption.OnlyErrorDialogs);
+            FileSystem.CopyDirectory(musicDir, Path.Combine(dest, $@"music\music{music.Id:000000}"), UIOption.OnlyErrorDialogs);
 
             if (request.removeEvents)
             {
@@ -104,14 +125,16 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
 
             // copy acbawb
             Directory.CreateDirectory(Path.Combine(dest, "SoundData"));
-            if (StaticSettings.AcbAwb.TryGetValue($"music{music.NonDxId:000000}.acb", out var acb))
+            if (AudioConvert.TryResolveAcbAwb(GetAudioCandidateIds(music), out var resolvedAudioId, out var acb, out var awb)
+                && acb is not null
+                && awb is not null)
             {
-                FileSystem.CopyFile(acb, Path.Combine(dest, $@"SoundData\music{music.NonDxId:000000}.acb"), UIOption.OnlyErrorDialogs);
+                FileSystem.CopyFile(acb, Path.Combine(dest, $@"SoundData\music{resolvedAudioId:000000}.acb"), UIOption.OnlyErrorDialogs);
+                FileSystem.CopyFile(awb, Path.Combine(dest, $@"SoundData\music{resolvedAudioId:000000}.awb"), UIOption.OnlyErrorDialogs);
             }
-
-            if (StaticSettings.AcbAwb.TryGetValue($"music{music.NonDxId:000000}.awb", out var awb))
+            else
             {
-                FileSystem.CopyFile(awb, Path.Combine(dest, $@"SoundData\music{music.NonDxId:000000}.awb"), UIOption.OnlyErrorDialogs);
+                logger.LogWarning("{message}", BuildAudioResolveErrorMessage(music));
             }
 
             // copy movie data
@@ -130,12 +153,19 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
     {
         var music = settings.GetMusic(id, assetDir);
         if (music is null) return;
+        var musicDir = Path.GetDirectoryName(music.FilePath);
+        if (string.IsNullOrWhiteSpace(musicDir) || !Directory.Exists(musicDir))
+        {
+            var message = $"Invalid source directory for music {music.Id}: {music.FilePath}";
+            logger.LogError("{message}", message);
+            throw new DirectoryNotFoundException(message);
+        }
 
         var zipStream = HttpContext.Response.BodyWriter.AsStream();
         using var zipArchive = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true);
 
         // copy music
-        foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(music.FilePath)))
+        foreach (var file in Directory.EnumerateFiles(musicDir))
         {
             if (Path.GetFileName(file).Equals("Music.xml", StringComparison.InvariantCultureIgnoreCase) && removeEvents)
             {
@@ -182,15 +212,14 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
         }
 
         // copy acbawb
-        if (StaticSettings.AcbAwb.TryGetValue($"music{music.NonDxId:000000}.acb", out var acb))
+        if (!AudioConvert.TryResolveAcbAwb(GetAudioCandidateIds(music), out var resolvedAudioId, out var acb, out var awb) || acb is null || awb is null)
         {
-            zipArchive.CreateEntryFromFile(acb, $"SoundData/music{music.NonDxId:000000}.acb");
+            var message = BuildAudioResolveErrorMessage(music);
+            logger.LogError("{message}", message);
+            throw new FileNotFoundException(message);
         }
-
-        if (StaticSettings.AcbAwb.TryGetValue($"music{music.NonDxId:000000}.awb", out var awb))
-        {
-            zipArchive.CreateEntryFromFile(awb, $"SoundData/music{music.NonDxId:000000}.awb");
-        }
+        zipArchive.CreateEntryFromFile(acb, $"SoundData/music{resolvedAudioId:000000}.acb");
+        zipArchive.CreateEntryFromFile(awb, $"SoundData/music{resolvedAudioId:000000}.awb");
 
         // copy movie data
         if (StaticSettings.MovieDataMap.TryGetValue(music.NonDxId, out var movie))
@@ -223,6 +252,13 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
         if (IapManager.License != IapManager.LicenseStatus.Active) return;
         var music = settings.GetMusic(id, assetDir);
         if (music is null) return;
+        var musicDir = Path.GetDirectoryName(music.FilePath);
+        if (string.IsNullOrWhiteSpace(musicDir) || !Directory.Exists(musicDir))
+        {
+            var message = $"Invalid source directory for music {music.Id}: {music.FilePath}";
+            logger.LogError("{message}", message);
+            throw new DirectoryNotFoundException(message);
+        }
         var newNonDxId = newId % 10000;
 
         var abJacketTarget = Path.Combine(StaticSettings.StreamingAssets, assetDir, "AssetBundleImages", "jacket", $"ui_jacket_{newNonDxId:000000}.ab");
@@ -310,6 +346,13 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
     {
         var music = settings.GetMusic(id, assetDir);
         if (music is null) return;
+        var musicDir = Path.GetDirectoryName(music.FilePath);
+        if (string.IsNullOrWhiteSpace(musicDir) || !Directory.Exists(musicDir))
+        {
+            var message = $"Invalid source directory for music {music.Id}: {music.FilePath}";
+            logger.LogError("{message}", message);
+            throw new DirectoryNotFoundException(message);
+        }
 
         await using var zipStream = HttpContext.Response.BodyWriter.AsStream();
         using var zipArchive = new ZipArchive(zipStream, ZipArchiveMode.Create, leaveOpen: true);
@@ -377,29 +420,62 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
             Comment = version?.GenreName,
             AlbumArt = img,
         };
-        AudioConvert.ConvertWavPathToMp3Stream(await AudioConvert.GetCachedWavPath(id), soundStream, tag);
+        var wavPath = await AudioConvert.GetCachedWavPath(GetAudioCandidateIds(music));
+        if (wavPath is null)
+        {
+            var message = BuildAudioResolveErrorMessage(music);
+            logger.LogError("{message}", message);
+            throw new FileNotFoundException(message);
+        }
+
+        AudioConvert.ConvertWavPathToMp3Stream(wavPath, soundStream, tag);
         soundStream.Close();
 
         if (!ignoreVideo && StaticSettings.MovieDataMap.TryGetValue(music.NonDxId, out var movieUsmPath))
         {
-            string? pvMp4Path = null;
-            var ext = Path.GetExtension(movieUsmPath).ToLowerInvariant();
-
-            if (ext == ".dat" || ext == ".usm")
+            DirectoryInfo? tmpDir = null;
+            try
             {
-                var tmpDir = Directory.CreateTempSubdirectory();
-                logger.LogInformation("Temp dir: {tmpDir}", tmpDir.FullName);
-                pvMp4Path = Path.Combine(tmpDir.FullName, "pv.mp4");
+                string? pvMp4Path = null;
+                var ext = Path.GetExtension(movieUsmPath).ToLowerInvariant();
 
-                await VideoConvert.ConvertUsmToMp4(movieUsmPath, pvMp4Path);
+                if (ext == ".dat" || ext == ".usm")
+                {
+                    tmpDir = Directory.CreateTempSubdirectory();
+                    logger.LogInformation("Temp dir: {tmpDir}", tmpDir.FullName);
+                    pvMp4Path = Path.Combine(tmpDir.FullName, "pv.mp4");
+
+                    await VideoConvert.ConvertUsmToMp4(movieUsmPath, pvMp4Path);
+                }
+                else if (ext == ".mp4")
+                {
+                    pvMp4Path = movieUsmPath;
+                }
+
+                if (pvMp4Path is not null && System.IO.File.Exists(pvMp4Path))
+                {
+                    zipArchive.CreateEntryFromFile(pvMp4Path, "pv.mp4");
+                }
             }
-            else if (ext == ".mp4")
+            catch (Exception ex)
             {
-                pvMp4Path = movieUsmPath;
+                logger.LogWarning(ex, "Failed to export pv.mp4 for music {musicId} ({name}), skipping video.", music.Id, music.Name);
             }
-
-            if (pvMp4Path is not null)
-                zipArchive.CreateEntryFromFile(pvMp4Path, "pv.mp4");
+            finally
+            {
+                if (tmpDir is not null)
+                {
+                    try
+                    {
+                        tmpDir.Delete(true);
+                    }
+                    catch
+                    {
+                        // ignore cleanup errors
+                    }
+                }
+            }
         }
     }
 }
+
