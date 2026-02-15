@@ -1,21 +1,34 @@
 import { STEP } from "@/components/MusicList/BatchActionButton/index";
-import { currentProcessItem, progressAll, progressCurrent } from "@/components/MusicList/BatchActionButton/ProgressDisplay";
+import {
+  currentProcessItem,
+  progressAll,
+  progressCurrent,
+} from "@/components/MusicList/BatchActionButton/ProgressDisplay";
 import { MusicXmlWithABJacket } from "@/client/apiGen";
 import { ZipReader } from "@zip.js/zip.js";
 import getSubDirFile from "@/utils/getSubDirFile";
-import { MAIDATA_SUBDIR, OPTIONS } from "@/components/MusicList/BatchActionButton/ChooseAction";
+import {
+  MAIDATA_SUBDIR,
+  OPTIONS,
+} from "@/components/MusicList/BatchActionButton/ChooseAction";
 import { useNotification } from "naive-ui";
 import { getUrl } from "@/client/api";
 import { addVersionList, genreList } from "@/store/refs";
 import { t } from "@/locales";
 import { sanitizeFsSegment } from "@/utils/sanitizeFsName";
 
-export default async (setStep: (step: STEP) => void, musicList: MusicXmlWithABJacket[], action: OPTIONS, notify: ReturnType<typeof useNotification>, dirOption: MAIDATA_SUBDIR) => {
+export default async (
+  setStep: (step: STEP) => void,
+  musicList: MusicXmlWithABJacket[],
+  action: OPTIONS,
+  notify: ReturnType<typeof useNotification>,
+  dirOption: MAIDATA_SUBDIR,
+) => {
   let folderHandle: FileSystemDirectoryHandle;
   try {
     folderHandle = await window.showDirectoryPicker({
       id: "copyToSaveDir",
-      mode: "readwrite"
+      mode: "readwrite",
     });
   } catch (e) {
     console.log(e);
@@ -52,10 +65,15 @@ export default async (setStep: (step: STEP) => void, musicList: MusicXmlWithABJa
     let parentDir = "";
     switch (dirOption) {
       case MAIDATA_SUBDIR.Genre:
-        parentDir = genreList.value.find((genre) => genre.id === music.genreId)?.genreName || t("music.list.unknown");
+        parentDir =
+          genreList.value.find((genre) => genre.id === music.genreId)
+            ?.genreName || t("music.list.unknown");
         break;
       case MAIDATA_SUBDIR.Version:
-        parentDir = addVersionList.value.find((version) => version.id === music.addVersionId)?.genreName || t("music.list.unknown");
+        parentDir =
+          addVersionList.value.find(
+            (version) => version.id === music.addVersionId,
+          )?.genreName || t("music.list.unknown");
         break;
     }
 
@@ -64,7 +82,10 @@ export default async (setStep: (step: STEP) => void, musicList: MusicXmlWithABJa
     }
 
     const suffix = music.id! > 1e4 && music.id! < 2e4 ? " [DX]" : "";
-    const safeTitle = sanitizeFsSegment(music.name || t("music.list.unknown"), t("music.list.unknown"));
+    const safeTitle = sanitizeFsSegment(
+      music.name || t("music.list.unknown"),
+      t("music.list.unknown"),
+    );
     const uniqueDir = getUniqueDirName(parentDir, `${safeTitle}${suffix}`);
     const fullDir = parentDir ? `${parentDir}/${uniqueDir}` : uniqueDir;
     exportDirByMusic.set(musicKey, fullDir);
@@ -106,7 +127,9 @@ export default async (setStep: (step: STEP) => void, musicList: MusicXmlWithABJa
     try {
       const response = await fetch(getUrl(url));
       if (!response.ok || !response.body) {
-        throw new Error(`Export request failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Export request failed: ${response.status} ${response.statusText}`,
+        );
       }
 
       const zipReader = new ZipReader(response.body);
@@ -119,18 +142,25 @@ export default async (setStep: (step: STEP) => void, musicList: MusicXmlWithABJa
             }
 
             let filename = entry.filename;
-            if (action === OPTIONS.ConvertToMaidata || action === OPTIONS.ConvertToMaidataIgnoreVideo) {
+            if (
+              action === OPTIONS.ConvertToMaidata ||
+              action === OPTIONS.ConvertToMaidataIgnoreVideo
+            ) {
               filename = `${getMaidataExportDir(music)}/${filename}`;
             }
 
             const fileHandle = await getSubDirFile(folderHandle, filename);
             const writable = await fileHandle.createWritable();
-            await entry.getData!(writable);
+            try {
+              await entry.getData!(writable);
+            } finally {
+              await writable.close();
+            }
           } catch (e) {
             console.error(e);
             notify.error({
               title: t("error.exportFailed"),
-              content: musicName
+              content: musicName,
             });
           }
         }
@@ -141,7 +171,7 @@ export default async (setStep: (step: STEP) => void, musicList: MusicXmlWithABJa
       console.error(e);
       notify.error({
         title: t("error.exportFailed"),
-        content: musicName
+        content: musicName,
       });
     }
   }

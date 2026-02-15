@@ -65,11 +65,7 @@ public static class WannaCRI
 
     private static void RunWannaCRIWithArgsInHelperProcess(params string[] args)
     {
-        var processPath = Application.ExecutablePath;
-        if (string.IsNullOrEmpty(processPath))
-        {
-            processPath = Environment.ProcessPath;
-        }
+        var processPath = Environment.ProcessPath;
 
         if (string.IsNullOrEmpty(processPath))
         {
@@ -123,7 +119,12 @@ public static class WannaCRI
 
     public static void CreateUsm(string src, string key = DefaultKey)
     {
-        RunWannaCRIWithArgsInHelperProcess("createusm", src, "--key", key, "--ffprobe", Path.Combine(StaticSettings.exeDir, "ffprobe.exe"), "--output", Path.GetDirectoryName(src)!);
+        var outputDir = Path.GetDirectoryName(src);
+        if (string.IsNullOrEmpty(outputDir))
+        {
+            throw new ArgumentException("Source path must be a full path to a file.", nameof(src));
+        }
+        RunWannaCRIWithArgsInHelperProcess("createusm", src, "--key", key, "--ffprobe", Path.Combine(StaticSettings.exeDir, "ffprobe.exe"), "--output", outputDir);
     }
 
     public static void UnpackUsm(string src, string output, string key = DefaultKey)
@@ -131,3 +132,4 @@ public static class WannaCRI
         RunWannaCRIWithArgsInHelperProcess("extractusm", src, "--key", key, "--output", output);
     }
 }
+
