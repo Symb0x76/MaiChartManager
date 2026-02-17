@@ -5,7 +5,7 @@ import {
   progressCurrent,
 } from "@/components/MusicList/BatchActionButton/ProgressDisplay";
 import { MusicXmlWithABJacket } from "@/client/apiGen";
-import { ZipReader } from "@zip.js/zip.js";
+import { BlobWriter, ZipReader } from "@zip.js/zip.js";
 import getSubDirFile from "@/utils/getSubDirFile";
 import {
   MAIDATA_SUBDIR,
@@ -35,33 +35,7 @@ export default async (
     return;
   }
 
-  const usedDirNamesByParent = new Map<string, Set<string>>();
-  const exportDirByMusic = new Map<string, string>();
-
-  const getUniqueDirName = (parentDir: string, baseName: string) => {
-    let used = usedDirNamesByParent.get(parentDir);
-    if (!used) {
-      used = new Set<string>();
-      usedDirNamesByParent.set(parentDir, used);
-    }
-
-    let candidate = baseName;
-    let index = 2;
-    while (used.has(candidate)) {
-      candidate = `${baseName} (${index})`;
-      index++;
-    }
-    used.add(candidate);
-    return candidate;
-  };
-
   const getMaidataExportDir = (music: MusicXmlWithABJacket) => {
-    const musicKey = `${music.assetDir}:${music.id}`;
-    const cached = exportDirByMusic.get(musicKey);
-    if (cached) {
-      return cached;
-    }
-
     let parentDir = "";
     switch (dirOption) {
       case MAIDATA_SUBDIR.Genre:
@@ -86,10 +60,8 @@ export default async (
       music.name || t("music.list.unknown"),
       t("music.list.unknown"),
     );
-    const uniqueDir = getUniqueDirName(parentDir, `${safeTitle}${suffix}`);
-    const fullDir = parentDir ? `${parentDir}/${uniqueDir}` : uniqueDir;
-    exportDirByMusic.set(musicKey, fullDir);
-    return fullDir;
+    const targetDir = `${safeTitle}${suffix}`;
+    return parentDir ? `${parentDir}/${targetDir}` : targetDir;
   };
 
   progressCurrent.value = 0;
@@ -134,6 +106,7 @@ export default async (
 
       const zipReader = new ZipReader(response.body);
       try {
+        let hasEntryError = false;
         const entries = zipReader.getEntriesGenerator();
         for await (const entry of entries) {
           try {
@@ -149,20 +122,33 @@ export default async (
               filename = `${getMaidataExportDir(music)}/${filename}`;
             }
 
+            if (!entry.getData) {
+              continue;
+            }
+
             const fileHandle = await getSubDirFile(folderHandle, filename);
             const writable = await fileHandle.createWritable();
             try {
-              await entry.getData!(writable);
+              const blob = await entry.getData(new BlobWriter());
+              await writable.write(blob);
             } finally {
               await writable.close();
             }
           } catch (e) {
-            console.error(e);
-            notify.error({
-              title: t("error.exportFailed"),
-              content: musicName,
+            hasEntryError = true;
+            console.error("Failed to export zip entry", {
+              musicName,
+              sourceFile: entry.filename,
+              error: e,
             });
           }
+        }
+
+        if (hasEntryError) {
+          notify.error({
+            title: t("error.exportFailed"),
+            content: musicName,
+          });
         }
       } finally {
         await zipReader.close();

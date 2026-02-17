@@ -377,14 +377,20 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
         simaiFile.AppendLine("&ChartConvertTool=MaiChartManager");
         simaiFile.AppendLine($"&ChartConvertToolVersion={Application.ProductVersion}");
 
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < music.Charts.Length; i++)
         {
             var chart = music.Charts[i];
-            if (chart is null) continue;
+            if (chart is null || !chart.Enable || string.IsNullOrWhiteSpace(chart.Path)) continue;
 
-            var path = Path.Combine(Path.GetDirectoryName(music.FilePath)!, chart.Path);
-            if (!System.IO.File.Exists(path)) continue;
-            var ma2Content = await System.IO.File.ReadAllLinesAsync(path);
+            var chartPath = Path.Combine(musicDir, chart.Path);
+            if (!System.IO.File.Exists(chartPath))
+            {
+                var fallbackPath = Path.Combine(musicDir, chart.Path.Replace(".ma2", "_L.ma2", StringComparison.OrdinalIgnoreCase));
+                if (!System.IO.File.Exists(fallbackPath)) continue;
+                chartPath = fallbackPath;
+            }
+
+            var ma2Content = await System.IO.File.ReadAllLinesAsync(chartPath);
             var ma2 = parser.ChartOfToken(ma2Content);
             var simai = ma2.Compose(ChartEnum.ChartVersion.SimaiFes);
             simaiFile.AppendLine($"&lv_{i + 2}={chart.Level}.{chart.LevelDecimal}");
@@ -478,4 +484,3 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
         }
     }
 }
-
