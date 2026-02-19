@@ -1,4 +1,6 @@
-﻿using System.Buffers.Binary;
+using System.Buffers;
+using System.Buffers.Binary;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -30,6 +32,9 @@ internal static class UsmCreator
     };
 
     private static readonly Encoding UsmEncoding = CreateUsmEncoding();
+
+    private static readonly ConcurrentDictionary<string, VideoProbeInfo> ProbeCache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly byte[] PaddingZeros = new byte[0x20];
 
     public static void Create(string src, string? output, ulong key)
     {
@@ -260,67 +265,82 @@ internal static class UsmCreator
         var keyframeOffsets = new List<(int FrameIndex, long Offset)>();
         var maxPacketSize = 1;
         var frameRateValue = checked((int)(frameRate * 100));
+        var maxFrameSize = frameSizes.Count == 0 ? 0 : frameSizes.Max();
+        var rentedBuffer = ArrayPool<byte>.Shared.Rent(Math.Max(1, maxFrameSize));
 
-        for (var i = 0; i < frameSizes.Count; i++)
+        try
         {
-            var payload = ReadExactly(source, frameSizes[i]);
-            payload = EncryptVideoPacket(payload, videoKey);
-
-            if (keyframeIndices.Contains(i))
+            for (var i = 0; i < frameSizes.Count; i++)
             {
-                keyframeOffsets.Add((i, output.Position));
-            }
+                var frameSize = frameSizes[i];
+                var payload = rentedBuffer.AsSpan(0, frameSize);
+                ReadExactly(source, payload);
+                EncryptVideoPacketInPlace(payload, videoKey);
 
-            var framePadding = GetAlignmentPadding(payload.Length, 0x20);
-            var frameTime = checked((int)(i * 99.9));
-            var frameChunk = PackChunk(
-                VideoSignature,
-                PayloadTypeStream,
-                payload,
-                frameRate: frameRateValue,
-                frameTime: frameTime,
-                padding: framePadding,
-                channelNumber: 0);
+                if (keyframeIndices.Contains(i))
+                {
+                    keyframeOffsets.Add((i, output.Position));
+                }
 
-            maxPacketSize = Math.Max(maxPacketSize, frameChunk.Length);
-            output.Write(frameChunk, 0, frameChunk.Length);
-
-            if (i == frameSizes.Count - 1)
-            {
-                var endChunk = PackChunk(
+                var framePadding = GetAlignmentPadding(frameSize, 0x20);
+                var frameTime = checked((int)(i * 99.9));
+                var frameChunkSize = WriteChunkToStream(
+                    output,
                     VideoSignature,
-                    PayloadTypeSectionEnd,
-                    ContentsEndPayload,
+                    PayloadTypeStream,
+                    payload,
                     frameRate: frameRateValue,
-                    frameTime: 0,
-                    padding: 0,
+                    frameTime: frameTime,
+                    padding: framePadding,
                     channelNumber: 0);
 
-                maxPacketSize = Math.Max(maxPacketSize, endChunk.Length);
-                output.Write(endChunk, 0, endChunk.Length);
-            }
-        }
+                maxPacketSize = Math.Max(maxPacketSize, frameChunkSize);
 
-        output.Flush();
-        return new StreamPackResult(output.Length, maxPacketSize, keyframeOffsets);
+                if (i == frameSizes.Count - 1)
+                {
+                    var endChunkSize = WriteChunkToStream(
+                        output,
+                        VideoSignature,
+                        PayloadTypeSectionEnd,
+                        ContentsEndPayload,
+                        frameRate: frameRateValue,
+                        frameTime: 0,
+                        padding: 0,
+                        channelNumber: 0);
+
+                    maxPacketSize = Math.Max(maxPacketSize, endChunkSize);
+                }
+            }
+
+            output.Flush();
+            return new StreamPackResult(output.Length, maxPacketSize, keyframeOffsets);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rentedBuffer);
+        }
     }
 
     private static PreparedVideoInput PrepareVideoInput(string sourcePath)
     {
-        var sourceProbe = ProbeVideo(sourcePath);
+        var sourceProbe = ProbeVideo(sourcePath, includePackets: IsLikelyElementaryStream(sourcePath));
         if (!string.Equals(sourceProbe.CodecName, "h264", StringComparison.OrdinalIgnoreCase))
         {
-            return new PreparedVideoInput(sourcePath, sourceProbe, DeleteAfterUse: false);
+            var fullProbe = sourceProbe.PacketOffsets.Count > 0 ? sourceProbe : ProbeVideo(sourcePath, includePackets: true);
+            return new PreparedVideoInput(sourcePath, fullProbe, DeleteAfterUse: false);
         }
+
         if (FormatContains(sourceProbe.FormatName, "h264"))
         {
-            return new PreparedVideoInput(sourcePath, sourceProbe, DeleteAfterUse: false);
+            var fullProbe = sourceProbe.PacketOffsets.Count > 0 ? sourceProbe : ProbeVideo(sourcePath, includePackets: true);
+            return new PreparedVideoInput(sourcePath, fullProbe, DeleteAfterUse: false);
         }
+
         var tempPath = Path.Combine(Path.GetTempPath(), $"maichartmanager_createusm_{Guid.NewGuid():N}.h264");
         try
         {
             ConvertH264ToAnnexB(sourcePath, tempPath);
-            var convertedProbe = ProbeVideo(tempPath);
+            var convertedProbe = ProbeVideo(tempPath, includePackets: true);
             return new PreparedVideoInput(tempPath, convertedProbe, DeleteAfterUse: true);
         }
         catch
@@ -329,6 +349,15 @@ internal static class UsmCreator
             throw;
         }
     }
+
+    private static bool IsLikelyElementaryStream(string sourcePath)
+    {
+        var extension = Path.GetExtension(sourcePath);
+        return extension.Equals(".h264", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".264", StringComparison.OrdinalIgnoreCase)
+               || extension.Equals(".ivf", StringComparison.OrdinalIgnoreCase);
+    }
+
     private static void ConvertH264ToAnnexB(string sourcePath, string outputPath)
     {
         var ffmpeg = ResolveFfmpegPath();
@@ -489,8 +518,21 @@ internal static class UsmCreator
         return page;
     }
 
-    private static VideoProbeInfo ProbeVideo(string src)
+    private static VideoProbeInfo ProbeVideo(string src, bool includePackets)
     {
+        var fullPath = Path.GetFullPath(src);
+        var fileInfo = new FileInfo(fullPath);
+        if (!fileInfo.Exists)
+        {
+            throw new FileNotFoundException("Input video file not found.", fullPath);
+        }
+
+        var cacheKey = $"{fullPath}|{fileInfo.Length}|{fileInfo.LastWriteTimeUtc.Ticks}|{(includePackets ? 1 : 0)}";
+        if (ProbeCache.TryGetValue(cacheKey, out var cached))
+        {
+            return cached;
+        }
+
         var ffprobe = ResolveFfprobePath();
 
         var startInfo = new ProcessStartInfo
@@ -504,15 +546,19 @@ internal static class UsmCreator
 
         startInfo.ArgumentList.Add("-v");
         startInfo.ArgumentList.Add("error");
-        startInfo.ArgumentList.Add("-show_entries");
-        startInfo.ArgumentList.Add("packet=pos,flags");
+        if (includePackets)
+        {
+            startInfo.ArgumentList.Add("-show_entries");
+            startInfo.ArgumentList.Add("packet=pos,flags");
+        }
+
         startInfo.ArgumentList.Add("-show_entries");
         startInfo.ArgumentList.Add("stream=codec_name,width,height,r_frame_rate,bit_rate");
         startInfo.ArgumentList.Add("-show_entries");
         startInfo.ArgumentList.Add("format=format_name,bit_rate");
         startInfo.ArgumentList.Add("-of");
         startInfo.ArgumentList.Add("json");
-        startInfo.ArgumentList.Add(src);
+        startInfo.ArgumentList.Add(fullPath);
 
         using var process = Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to start ffprobe.");
         var stdoutTask = process.StandardOutput.ReadToEndAsync();
@@ -554,7 +600,7 @@ internal static class UsmCreator
 
         var packetOffsets = new List<long>();
         var packetIsKeyframe = new List<bool>();
-        if (result.Packets is not null)
+        if (includePackets && result.Packets is not null)
         {
             foreach (var packet in result.Packets)
             {
@@ -573,12 +619,12 @@ internal static class UsmCreator
             }
         }
 
-        if (packetOffsets.Count == 0)
+        if (includePackets && packetOffsets.Count == 0)
         {
             throw new InvalidDataException("ffprobe returned no packet offsets.");
         }
 
-        return new VideoProbeInfo(
+        var probeInfo = new VideoProbeInfo(
             CodecName: codecName,
             FormatName: formatName,
             Width: width,
@@ -587,6 +633,9 @@ internal static class UsmCreator
             Bitrate: bitrate,
             PacketOffsets: packetOffsets,
             PacketIsKeyframe: packetIsKeyframe);
+
+        ProbeCache[cacheKey] = probeInfo;
+        return probeInfo;
     }
 
     private static string ResolveFfprobePath()
@@ -983,6 +1032,50 @@ internal static class UsmCreator
         return result;
     }
 
+    private static int WriteChunkToStream(
+        Stream output,
+        ReadOnlySpan<byte> chunkType,
+        byte payloadType,
+        ReadOnlySpan<byte> payload,
+        int frameRate,
+        int frameTime,
+        int padding,
+        byte channelNumber)
+    {
+        Span<byte> header = stackalloc byte[0x20];
+        var chunkSize = checked(0x18 + payload.Length + padding);
+
+        var offset = 0;
+        chunkType.CopyTo(header.Slice(offset, 4));
+        offset += 4;
+
+        BinaryPrimitives.WriteUInt32BigEndian(header.Slice(offset, 4), checked((uint)chunkSize));
+        offset += 4;
+
+        header[offset++] = 0;
+        header[offset++] = 0x18;
+        BinaryPrimitives.WriteUInt16BigEndian(header.Slice(offset, 2), checked((ushort)padding));
+        offset += 2;
+
+        header[offset++] = channelNumber;
+        header[offset++] = 0;
+        header[offset++] = 0;
+        header[offset++] = payloadType;
+
+        BinaryPrimitives.WriteInt32BigEndian(header.Slice(offset, 4), frameTime);
+        offset += 4;
+        BinaryPrimitives.WriteInt32BigEndian(header.Slice(offset, 4), frameRate);
+
+        output.Write(header);
+        output.Write(payload);
+        if (padding > 0)
+        {
+            output.Write(PaddingZeros.AsSpan(0, padding));
+        }
+
+        return 0x20 + payload.Length + padding;
+    }
+
     private static int MetadataPadding(int chunkSize)
     {
         if (chunkSize <= 0xF0)
@@ -1007,13 +1100,12 @@ internal static class UsmCreator
         return remainder == 0 ? 0 : alignment - remainder;
     }
 
-    private static byte[] ReadExactly(Stream stream, int size)
+    private static void ReadExactly(Stream stream, Span<byte> buffer)
     {
-        var buffer = new byte[size];
         var offset = 0;
-        while (offset < size)
+        while (offset < buffer.Length)
         {
-            var read = stream.Read(buffer, offset, size - offset);
+            var read = stream.Read(buffer[offset..]);
             if (read <= 0)
             {
                 throw new EndOfStreamException("Unexpected EOF while reading video packet.");
@@ -1021,25 +1113,24 @@ internal static class UsmCreator
 
             offset += read;
         }
-
-        return buffer;
     }
-    private static byte[] EncryptVideoPacket(byte[] packet, byte[] videoKey)
+
+    private static void EncryptVideoPacketInPlace(Span<byte> data, ReadOnlySpan<byte> videoKey)
     {
         if (videoKey.Length < 0x40)
         {
             throw new ArgumentException("Video key should be 0x40 bytes long.", nameof(videoKey));
         }
 
-        var data = (byte[])packet.Clone();
         if (data.Length < 0x240)
         {
-            return data;
+            return;
         }
 
-        var encryptedPartSize = data.Length - 0x40;
-        var rolling = (byte[])videoKey.Clone();
+        Span<byte> rolling = stackalloc byte[0x40];
+        videoKey.Slice(0, 0x40).CopyTo(rolling);
 
+        var encryptedPartSize = data.Length - 0x40;
         for (var i = 0; i < 0x100; i++)
         {
             var keyIndex = i % 0x20;
@@ -1055,8 +1146,6 @@ internal static class UsmCreator
             data[packetIndex] = (byte)(data[packetIndex] ^ rolling[keyIndex]);
             rolling[keyIndex] = (byte)(plain ^ videoKey[keyIndex]);
         }
-
-        return data;
     }
 
     private static (byte[] videoKey, byte[] audioKey) GenerateKeys(ulong keyNum)

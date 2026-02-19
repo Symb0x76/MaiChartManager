@@ -125,6 +125,13 @@ public static class VideoConvert
             {
                 WinUtils.SetTaskbarProgressIndeterminate();
             }
+
+            var outputDirectory = Path.GetDirectoryName(options.OutputPath);
+            if (!string.IsNullOrWhiteSpace(outputDirectory))
+            {
+                Directory.CreateDirectory(outputDirectory);
+            }
+
             // 第一步：转换为 VP9 (IVF) 或 H264 (MP4)
             var intermediateFile = Path.Combine(tmpDir.FullName, options.UseH264 ? "out.mp4" : "out.ivf");
             await ConvertToVp9OrH264(options, intermediateFile, tmpDir.FullName);
@@ -135,11 +142,10 @@ public static class VideoConvert
                 throw new Exception("视频转换失败：输出文件不存在或为空");
             }
 
-            // 第二步：如果是 VP9，转换为 USM
-            string finalFile;
+            // 第二步：VP9 直接打包到目标 USM，避免中间 USM 文件再复制。
             if (options.UseH264)
             {
-                finalFile = intermediateFile;
+                FileSystem.CopyFile(intermediateFile, options.OutputPath, true);
             }
             else
             {
@@ -147,17 +153,13 @@ public static class VideoConvert
                 {
                     WinUtils.SetTaskbarProgressIndeterminate();
                 }
-                finalFile = Path.Combine(tmpDir.FullName, "out.usm");
-                WannaCRI.WannaCRI.CreateUsm(intermediateFile);
-                if (!File.Exists(finalFile) || new FileInfo(finalFile).Length == 0)
+
+                WannaCRI.WannaCRI.CreateUsm(intermediateFile, options.OutputPath);
+                if (!File.Exists(options.OutputPath) || new FileInfo(options.OutputPath).Length == 0)
                 {
                     throw new Exception("视频转换为 USM 失败：输出文件不存在或为空");
                 }
             }
-
-            // 第三步：复制到目标位置
-            Directory.CreateDirectory(Path.GetDirectoryName(options.OutputPath)!);
-            FileSystem.CopyFile(finalFile, options.OutputPath, true);
         }
         finally
         {
