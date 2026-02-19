@@ -1,101 +1,10 @@
-using System.Diagnostics;
-using Python.Runtime;
+using System.Globalization;
 
 namespace MaiChartManager.WannaCRI;
 
 public static class WannaCRI
 {
     private const string DefaultKey = "0x7F4551499DF55E68";
-
-    static WannaCRI()
-    {
-        Runtime.PythonDLL = Path.Combine(StaticSettings.exeDir, "Python", "python312.dll");
-        PythonEngine.PythonHome = Path.Combine(StaticSettings.exeDir, "Python");
-        PythonEngine.PythonPath = $"{Path.Combine(StaticSettings.exeDir, "WannaCRI")};{Path.Combine(StaticSettings.exeDir, "Python")}";
-    }
-
-    private static void RunWannaCRIWithArgsInCurrentProcess(params string[] args)
-    {
-        PythonEngine.Initialize();
-        try
-        {
-            using (Py.GIL())
-            {
-                using var scope = Py.CreateScope();
-
-                // Hook Popen
-                scope.Exec("""
-                           import subprocess
-                           import os
-
-                           # 保存原始的 Popen 函数
-                           _orig_Popen = subprocess.Popen
-
-                           # 定义新的 Popen 函数
-                           def _Popen_no_window(*args, **kwargs):
-                               # 添加 creationflags 参数，防止弹出 cmd 窗口
-                               if os.name == 'nt':  # 仅在 Windows 上设置
-                                   kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
-                               return _orig_Popen(*args, **kwargs)
-
-                           # 替换原始 Popen 函数
-                           subprocess.Popen = _Popen_no_window
-                           """);
-
-                var sys = scope.Import("sys");
-                var argv = new PyList();
-                argv.Append(new PyString("qwq"));
-                foreach (var arg in args)
-                {
-                    argv.Append(new PyString(arg));
-                }
-
-                sys.SetAttr("argv", argv);
-
-                var wannacri = scope.Import("wannacri");
-                wannacri.GetAttr("main").Invoke();
-            }
-        }
-        finally
-        {
-            // 不然的话第二次转换会卡住
-            PythonEngine.Shutdown();
-        }
-    }
-
-    private static void RunWannaCRIWithArgsInHelperProcess(params string[] args)
-    {
-        var processPath = Environment.ProcessPath;
-
-        if (string.IsNullOrEmpty(processPath))
-        {
-            throw new InvalidOperationException("Cannot locate current executable path.");
-        }
-
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = processPath,
-            WorkingDirectory = StaticSettings.exeDir,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardError = true
-        };
-        startInfo.ArgumentList.Add("--run-wannacri");
-        foreach (var arg in args)
-        {
-            startInfo.ArgumentList.Add(arg);
-        }
-
-        using var process = Process.Start(startInfo) ?? throw new InvalidOperationException("Failed to start WannaCRI helper process.");
-        var stderrTask = process.StandardError.ReadToEndAsync();
-        process.WaitForExit();
-        var stderr = stderrTask.GetAwaiter().GetResult().Trim();
-
-        if (process.ExitCode != 0)
-        {
-            throw new Exception($"WannaCRI helper failed with exit code {process.ExitCode}: {stderr}");
-        }
-    }
 
     public static int RunHelper(string[] args)
     {
@@ -107,8 +16,13 @@ public static class WannaCRI
 
         try
         {
-            RunWannaCRIWithArgsInCurrentProcess(args);
-            return 0;
+            var operation = args[0].ToLowerInvariant();
+            return operation switch
+            {
+                "extractusm" => RunExtractUsm(args),
+                "createusm" => RunCreateUsm(args),
+                _ => throw new ArgumentException($"Unsupported WannaCRI command: {args[0]}")
+            };
         }
         catch (Exception ex)
         {
@@ -117,19 +31,146 @@ public static class WannaCRI
         }
     }
 
+    private static int RunExtractUsm(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            throw new ArgumentException("extractusm requires an input file path.");
+        }
+
+        var input = args[1];
+        var output = "./output";
+        var key = DefaultKey;
+
+        for (var i = 2; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "-o":
+                case "--output":
+                    if (i + 1 >= args.Length)
+                    {
+                        throw new ArgumentException("Missing value for --output.");
+                    }
+
+                    output = args[++i];
+                    break;
+                case "-k":
+                case "--key":
+                    if (i + 1 >= args.Length)
+                    {
+                        throw new ArgumentException("Missing value for --key.");
+                    }
+
+                    key = args[++i];
+                    break;
+            }
+        }
+
+        UnpackUsm(input, output, key);
+        return 0;
+    }
+
+    private static int RunCreateUsm(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            throw new ArgumentException("createusm requires an input file path.");
+        }
+
+        var input = args[1];
+        string? output = null;
+        var key = DefaultKey;
+
+        for (var i = 2; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "-o":
+                case "--output":
+                    if (i + 1 >= args.Length)
+                    {
+                        throw new ArgumentException("Missing value for --output.");
+                    }
+
+                    output = args[++i];
+                    break;
+                case "-k":
+                case "--key":
+                    if (i + 1 >= args.Length)
+                    {
+                        throw new ArgumentException("Missing value for --key.");
+                    }
+
+                    key = args[++i];
+                    break;
+            }
+        }
+
+        CreateUsm(input, output, key);
+        return 0;
+    }
+
     public static void CreateUsm(string src, string key = DefaultKey)
     {
-        var outputDir = Path.GetDirectoryName(src);
-        if (string.IsNullOrEmpty(outputDir))
+        CreateUsm(src, output: null, key);
+    }
+
+    public static void CreateUsm(string src, string? output, string key = DefaultKey)
+    {
+        if (string.IsNullOrWhiteSpace(src))
         {
-            throw new ArgumentException("Source path must be a full path to a file.", nameof(src));
+            throw new ArgumentException("Input path is required.", nameof(src));
         }
-        RunWannaCRIWithArgsInHelperProcess("createusm", src, "--key", key, "--ffprobe", Path.Combine(StaticSettings.exeDir, "ffprobe.exe"), "--output", outputDir);
+
+        if (!File.Exists(src))
+        {
+            throw new FileNotFoundException("Input file not found.", src);
+        }
+
+        if (!TryParseHexKey(key, out var keyValue))
+        {
+            throw new ArgumentException($"Invalid key format: {key}", nameof(key));
+        }
+
+        UsmCreator.Create(src, output, keyValue);
     }
 
     public static void UnpackUsm(string src, string output, string key = DefaultKey)
     {
-        RunWannaCRIWithArgsInHelperProcess("extractusm", src, "--key", key, "--output", output);
+        if (string.IsNullOrWhiteSpace(src))
+        {
+            throw new ArgumentException("Input path is required.", nameof(src));
+        }
+
+        if (!File.Exists(src))
+        {
+            throw new FileNotFoundException("USM input file not found.", src);
+        }
+
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            throw new ArgumentException("Output directory is required.", nameof(output));
+        }
+
+        Directory.CreateDirectory(output);
+
+        if (!TryParseHexKey(key, out var keyValue))
+        {
+            throw new ArgumentException($"Invalid key format: {key}", nameof(key));
+        }
+
+        UsmExtractor.Extract(src, output, keyValue);
+    }
+
+    private static bool TryParseHexKey(string key, out ulong keyValue)
+    {
+        var normalized = key.Trim();
+        if (normalized.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+        {
+            normalized = normalized[2..];
+        }
+
+        return ulong.TryParse(normalized, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out keyValue);
     }
 }
-
