@@ -16,6 +16,9 @@ public static class VideoConvert
     public static string H264Encoder { get; private set; } = "libx264";
 
     private static string Vp9Encoding => HardwareAcceleration == HardwareAccelerationStatus.Enabled ? "vp9_qsv" : "vp9";
+    private static readonly SemaphoreSlim UsmToMp4Semaphore = new(
+        Math.Max(1, Environment.ProcessorCount / 4),
+        Math.Max(1, Environment.ProcessorCount / 4));
 
     /// <summary>
     /// 检测硬件加速支持
@@ -306,61 +309,68 @@ public static class VideoConvert
     /// <param name="onProgress">进度回调（可选）</param>
     public static async Task ConvertUsmToMp4(string inputPath, string outputPath, Action<int>? onProgress = null)
     {
-        var tmpDir = Directory.CreateTempSubdirectory();
+        await UsmToMp4Semaphore.WaitAsync();
         try
         {
-            var movieUsm = Path.Combine(tmpDir.FullName, "movie.usm");
-            var ext = Path.GetExtension(inputPath).ToLowerInvariant();
-
-            onProgress?.Invoke(10);
-            FileSystem.CopyFile(inputPath, movieUsm, UIOption.OnlyErrorDialogs);
-
-            // 解包 USM
-            onProgress?.Invoke(30);
-            WannaCRI.WannaCRI.UnpackUsm(movieUsm, Path.Combine(tmpDir.FullName, "output"));
-
-            // 查找解包后的 IVF 文件
-            onProgress?.Invoke(50);
-            var outputIvfFile = Directory.EnumerateFiles(Path.Combine(tmpDir.FullName, @"output\movie.usm\videos")).FirstOrDefault();
-            if (outputIvfFile is null)
+            var tmpDir = Directory.CreateTempSubdirectory();
+            try
             {
-                throw new Exception("USM 解包失败：未找到视频文件");
-            }
+                var movieUsm = Path.Combine(tmpDir.FullName, "movie.usm");
 
-            // 转换为 MP4
-            var conversion = FFmpeg.Conversions.New()
-                .AddParameter("-i " + outputIvfFile.Escape())
-                .AddParameter("-c:v copy")
-                .SetOutput(outputPath);
+                onProgress?.Invoke(10);
+                FileSystem.CopyFile(inputPath, movieUsm, UIOption.OnlyErrorDialogs);
 
-            if (onProgress != null)
-            {
-                conversion.OnProgress += (sender, args) =>
+                // 解包 USM
+                onProgress?.Invoke(30);
+                WannaCRI.WannaCRI.UnpackUsm(movieUsm, Path.Combine(tmpDir.FullName, "output"));
+
+                // 查找解包后的 IVF 文件
+                onProgress?.Invoke(50);
+                var outputIvfFile = Directory.EnumerateFiles(Path.Combine(tmpDir.FullName, @"output\movie.usm\videos")).FirstOrDefault();
+                if (outputIvfFile is null)
                 {
-                    // FFmpeg 进度从 50% 开始，映射到 50-100%
-                    var percent = 50 + (int)(args.Percent / 2);
-                    onProgress(percent);
-                };
+                    throw new Exception("USM 解包失败：未找到视频文件");
+                }
+
+                // 转换为 MP4
+                var conversion = FFmpeg.Conversions.New()
+                    .AddParameter("-i " + outputIvfFile.Escape())
+                    .AddParameter("-c:v copy")
+                    .SetOutput(outputPath);
+
+                if (onProgress != null)
+                {
+                    conversion.OnProgress += (sender, args) =>
+                    {
+                        // FFmpeg 进度从 50% 开始，映射到 50-100%
+                        var percent = 50 + (int)(args.Percent / 2);
+                        onProgress(percent);
+                    };
+                }
+
+                await conversion.Start();
+
+                if (!File.Exists(outputPath) || new FileInfo(outputPath).Length == 0)
+                {
+                    throw new Exception("转换失败：输出文件不存在或为空");
+                }
             }
-
-            await conversion.Start();
-
-            if (!File.Exists(outputPath) || new FileInfo(outputPath).Length == 0)
+            finally
             {
-                throw new Exception("转换失败：输出文件不存在或为空");
+                // 清理临时目录
+                try
+                {
+                    tmpDir.Delete(true);
+                }
+                catch
+                {
+                    // 忽略清理错误
+                }
             }
         }
         finally
         {
-            // 清理临时目录
-            try
-            {
-                tmpDir.Delete(true);
-            }
-            catch
-            {
-                // 忽略清理错误
-            }
+            UsmToMp4Semaphore.Release();
         }
     }
 }

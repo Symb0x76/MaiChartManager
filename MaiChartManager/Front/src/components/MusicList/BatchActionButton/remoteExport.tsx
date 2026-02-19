@@ -70,34 +70,48 @@ export default async (
 
   setStep(STEP.ProgressDisplay);
 
-  for (let i = 0; i < musicList.length; i++) {
-    const music = musicList[i];
-    const musicName = music.name || t("music.list.unknown");
-
-    progressCurrent.value = i;
-    currentProcessItem.value = musicName;
-
-    let url = "";
+  const getExportUrl = (music: MusicXmlWithABJacket) => {
     switch (action) {
       case OPTIONS.CreateNewOpt:
-        url = `ExportOptApi/${music.assetDir}/${music.id}`;
-        break;
+        return `ExportOptApi/${music.assetDir}/${music.id}`;
       case OPTIONS.CreateNewOptCompatible:
-        url = `ExportOptApi/${music.assetDir}/${music.id}?removeEvents=true`;
-        break;
+        return `ExportOptApi/${music.assetDir}/${music.id}?removeEvents=true`;
       case OPTIONS.CreateNewOptMa2_103:
-        url = `ExportOptApi/${music.assetDir}/${music.id}?removeEvents=true&legacyFormat=true`;
-        break;
+        return `ExportOptApi/${music.assetDir}/${music.id}?removeEvents=true&legacyFormat=true`;
       case OPTIONS.ConvertToMaidata:
-        url = `ExportAsMaidataApi/${music.assetDir}/${music.id}`;
-        break;
+        return `ExportAsMaidataApi/${music.assetDir}/${music.id}`;
       case OPTIONS.ConvertToMaidataIgnoreVideo:
-        url = `ExportAsMaidataApi/${music.assetDir}/${music.id}?ignoreVideo=true`;
-        break;
+        return `ExportAsMaidataApi/${music.assetDir}/${music.id}?ignoreVideo=true`;
+      default:
+        throw new Error(`Unsupported export action: ${action}`);
     }
+  };
+
+  const getMaxParallelExports = () => {
+    const cpuThreads = Math.max(1, navigator.hardwareConcurrency || 4);
+
+    switch (action) {
+      case OPTIONS.ConvertToMaidata:
+        return Math.max(1, Math.floor(cpuThreads / 4));
+      case OPTIONS.ConvertToMaidataIgnoreVideo:
+        return Math.max(1, Math.floor(cpuThreads / 3));
+      default:
+        return Math.max(1, Math.floor(cpuThreads / 2));
+    }
+  };
+
+  const exportOne = async (music: MusicXmlWithABJacket) => {
+    const musicName = music.name || t("music.list.unknown");
+    currentProcessItem.value = musicName;
+
+    const maidataRootDir =
+      action === OPTIONS.ConvertToMaidata ||
+      action === OPTIONS.ConvertToMaidataIgnoreVideo
+        ? getMaidataExportDir(music)
+        : "";
 
     try {
-      const response = await fetch(getUrl(url));
+      const response = await fetch(getUrl(getExportUrl(music)));
       if (!response.ok || !response.body) {
         throw new Error(
           `Export request failed: ${response.status} ${response.statusText}`,
@@ -110,21 +124,13 @@ export default async (
         const entries = zipReader.getEntriesGenerator();
         for await (const entry of entries) {
           try {
-            if (entry.filename.endsWith("/")) {
+            if (entry.filename.endsWith("/") || !entry.getData) {
               continue;
             }
 
-            let filename = entry.filename;
-            if (
-              action === OPTIONS.ConvertToMaidata ||
-              action === OPTIONS.ConvertToMaidataIgnoreVideo
-            ) {
-              filename = `${getMaidataExportDir(music)}/${filename}`;
-            }
-
-            if (!entry.getData) {
-              continue;
-            }
+            const filename = maidataRootDir
+              ? `${maidataRootDir}/${entry.filename}`
+              : entry.filename;
 
             const fileHandle = await getSubDirFile(folderHandle, filename);
             const writable = await fileHandle.createWritable();
@@ -160,7 +166,29 @@ export default async (
         content: musicName,
       });
     }
-  }
+  };
 
-  setStep(STEP.None);
+  let nextIndex = 0;
+  let completedCount = 0;
+  const workerCount = Math.min(musicList.length, getMaxParallelExports());
+
+  const worker = async () => {
+    while (true) {
+      const currentIndex = nextIndex++;
+      if (currentIndex >= musicList.length) {
+        return;
+      }
+
+      await exportOne(musicList[currentIndex]);
+      completedCount += 1;
+      progressCurrent.value = completedCount;
+    }
+  };
+
+  try {
+    await Promise.all(Array.from({ length: workerCount }, () => worker()));
+  } finally {
+    currentProcessItem.value = "";
+    setStep(STEP.None);
+  }
 };
