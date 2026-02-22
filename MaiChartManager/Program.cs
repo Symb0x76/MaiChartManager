@@ -1,6 +1,5 @@
 using System.Runtime.InteropServices;
 using SingleInstanceCore;
-using WannaCriRunner = MaiChartManager.WannaCRI.WannaCRI;
 
 namespace MaiChartManager;
 
@@ -13,15 +12,9 @@ public static partial class Program
     ///  The main entry point for the application.
     /// </summary>
     [STAThread]
-    public static void Main(string[] args)
+    public static void Main()
     {
         SetConsoleOutputCP(65001);
-
-        if (args.Length > 0 && args[0].Equals("--run-wannacri", StringComparison.OrdinalIgnoreCase))
-        {
-            Environment.ExitCode = WannaCriRunner.RunHelper(args[1..]);
-            return;
-        }
 
         var app = new AppMain();
 
