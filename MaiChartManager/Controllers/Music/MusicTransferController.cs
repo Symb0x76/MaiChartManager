@@ -168,7 +168,10 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
         if (legacyFormat)
         {
             var parser = new Ma2Parser();
-            foreach (var file in Directory.EnumerateFiles(musicDestDir, "*.ma2", new EnumerationOptions() { MatchCasing = MatchCasing.CaseInsensitive }))
+            foreach (var file in Directory.EnumerateFiles(musicDestDir, "*.ma2", new EnumerationOptions()
+            {
+                MatchCasing = MatchCasing.CaseInsensitive
+            }))
             {
                 var originalContent = System.IO.File.ReadAllText(file);
                 var ma2Lines = new List<string>();
@@ -370,7 +373,7 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
                 continue;
             }
 
-            if (legacyFormat)
+            if (legacyFormat && Path.GetExtension(file).Equals(".ma2", StringComparison.InvariantCultureIgnoreCase))
             {
                 var ma2 = System.IO.File.ReadAllLines(file);
                 var ma2_103 = new Ma2Parser().ChartOfToken(ma2).Compose(ChartEnum.ChartVersion.Ma2_103);
@@ -677,4 +680,3 @@ public class MusicTransferController(StaticSettings settings, ILogger<MusicTrans
         }
     }
 }
-
